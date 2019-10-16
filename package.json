@@ -1,0 +1,42 @@
+{
+  "name": "caml4js",
+  "version": "1.0.0",
+  "description": "A declarative JavaScript library for creating SharePoint client-side CAML queries",
+  "main": "dist/caml4js.min.js",
+  "types": "dist/caml4js.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:prod": "tsc && npm run minify",
+    "test": "jest",
+    "minify": "uglifyjs ./dist/caml4js.js --compress --mangle --output ./dist/caml4js.min.js",
+    "clean": "del dist\\*.* /Q"
+  },
+  "files": [
+    "dist/caml4js.js",
+    "dist/caml4js.d.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kofrimpong/caml4js.git"
+  },
+  "keywords": [
+    "CAML",
+    "SharePoint"
+  ],
+  "author": "K. O. Frimpong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kofrimpong/caml4js/issues"
+  },
+  "homepage": "https://github.com/kofrimpong/caml4js#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.19",
+    "@types/node": "^12.11.1",
+    "@types/vkbeautify": "^0.99.2",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.6.4",
+    "uglify-js": "^3.6.2",
+    "vkbeautify": "^0.99.3"
+  }
+}

@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "target": "es5",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "declaration": true,
+        "removeComments": true
+    },
+    "files": [
+        "src/caml4js.ts"
+    ]
+}
