@@ -391,6 +391,21 @@ export enum AggregationType {
     Sum = "Sum"
 }
 
+export enum ViewScope {
+    /**
+     * Show only the files of a specific folder.
+     */
+    FilesOnly = "FilesOnly",
+    /**
+     * Show all files of all folders.
+     */
+    Recursive = "Recursive",
+    /**
+     * Show all files and all subfolders of all folders.
+     */
+    RecursiveAll = "RecursiveAll"
+}
+
 
 export const and = (query1: string, query2: string) => {
     return "<And>" + query1 + query2 + "</And>"
@@ -439,6 +454,13 @@ export const view = (...viewInputs: string[]) => {
     return `<View>${viewStr}</View>`
 }
 
+export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
+    let viewStr = viewInputs.reduce((accu, current) => {
+        return accu + current
+    }, '');
+    return `<View Scope="${scope}">${viewStr}</View>`
+}
+
 export const orderBy = (...orderBy: { Field: string, DSC?: boolean }[]) => {
     let viewStr = orderBy.reduce((accu, current) => {
         let asc = current.DSC ? ` Ascending="FALSE"` : "";
@@ -449,11 +471,15 @@ export const orderBy = (...orderBy: { Field: string, DSC?: boolean }[]) => {
 export const groupBy = (field: string) => {
     return `<GroupBy><FieldRef Name="${field}"/></GroupBy>`
 }
-export const aggregation = (...aggregations: { Name: string, Type: AggregationType }[]) => {
+export const aggregations = (...aggregations: { Name: string, Type: AggregationType }[]) => {
     let viewStr = aggregations.reduce((accu, current) => {
         return accu + `<FieldRef Name="${current.Name}" Type="${current.Type}"/>`
     }, '');
     return `<Aggregations Value="On">${viewStr}</Aggregations>`
+}
+export const rowLimit = (limit: number, paged: boolean = false) => {
+    let pageStr = paged ? ' Paged="TRUE"' : '';
+    return `<RowLimit${pageStr}>${limit}</RowLimit>`
 }
 export const noteField = (internalName: string) => {
     return new FieldOperator(ValueType.Note, internalName)

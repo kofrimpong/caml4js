@@ -89,7 +89,7 @@ let v = view(
             viewFields("Name","Population"),
             query(
                 where(
-                    numberField("Name").greaterThan(2000)
+                    numberField("Population").greaterThan(2000)
                 )
             )
         )
