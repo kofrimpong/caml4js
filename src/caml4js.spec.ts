@@ -1,16 +1,16 @@
-import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField } from './caml4js'
+import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField, lookupField } from './caml4js'
 import * as vkbeautify from 'vkbeautify'
 
 it("Simple query", () => {
     let q = query(
         where(
             or(
-                textField("Email").equalTo("support@google.com"),
+                textField("Email").equalTo("info@github.com"),
                 or(
-                    textField("Email").equalTo("plus@google.com"),
+                    textField("Subject").equalTo("Hello Caml3Js Users"),
                     or(
-                        textField("Title").beginsWith("[Google]"),
-                        textField("Content").contains("Google")
+                        textField("Subject").beginsWith("Caml4Js"),
+                        textField("Content").contains("SharePoint")
                     )
                 )
             )
@@ -20,12 +20,12 @@ it("Simple query", () => {
         `<Query>
             <Where>
                 <Or>
-                    <Eq><FieldRef Name="Email"/><Value Type="Text">support@google.com</Value></Eq>
+                    <Eq><FieldRef Name="Email"/><Value Type="Text">info@github.com</Value></Eq>
                     <Or>
-                        <Eq><FieldRef Name="Email"/><Value Type="Text">plus@google.com</Value></Eq>
+                        <Eq><FieldRef Name="Subject"/><Value Type="Text">Hello Caml3Js Users</Value></Eq>
                         <Or>
-                            <BeginsWith><FieldRef Name="Title"/><Value Type="Text">[Google]</Value></BeginsWith>
-                            <Contains><FieldRef Name="Content"/><Value Type="Text">Google</Value></Contains>
+                            <BeginsWith><FieldRef Name="Subject"/><Value Type="Text">Caml4Js</Value></BeginsWith>
+                            <Contains><FieldRef Name="Content"/><Value Type="Text">SharePoint</Value></Contains>
                         </Or>
                     </Or>
                 </Or>
@@ -68,15 +68,15 @@ it("Tests nested expressions", () => {
                 and(
                     booleanField("Enabled").isTrue(),
                     or(
-                        userField("TargetAudience").includes(55),
-                        userField("TargetAudience").includes(66)
+                        userField("Audience").includes(100),
+                        userField("Audience").includes(101)
                     )
                 ),
                 or(
-                    textField("NotificationScope").equalTo(77),
+                    textField("Title").equalTo("Test Suites"),
                     and(
-                        textField("NotificationScope").equalTo(88),
-                        textField("ScopeWebRelativeUrl").equalTo(99),
+                        choiceField("Status").equalTo("Open"),
+                        dateTimeField("Created").greaterThan(new Date(Date.UTC(2019, 0, 1)))
                     )
                 )
             )
@@ -84,25 +84,43 @@ it("Tests nested expressions", () => {
     )
     expect(vkbeautify.xml(q)).toEqual(vkbeautify.xml(
         `<Query>
-            <Where>
+        <Where>
+            <And>
                 <And>
-                    <And>
-                        <Eq><FieldRef Name="Enabled"/><Value Type="Integer">1</Value></Eq>
-                        <Or>
-                            <Eq><FieldRef Name="TargetAudience"/><Value Type="UserMulti">55</Value></Eq>
-                            <Eq><FieldRef Name="TargetAudience"/><Value Type="UserMulti">66</Value></Eq>
-                        </Or>
-                    </And>
+                    <Eq>
+                        <FieldRef Name="Enabled"/>
+                        <Value Type="Integer">1</Value>
+                    </Eq>
                     <Or>
-                        <Eq><FieldRef Name="NotificationScope"/><Value Type="Text">77</Value></Eq>
-                        <And>
-                            <Eq><FieldRef Name="NotificationScope"/><Value Type="Text">88</Value></Eq>
-                            <Eq><FieldRef Name="ScopeWebRelativeUrl"/><Value Type="Text">99</Value></Eq>
-                        </And>
+                        <Eq>
+                            <FieldRef Name="Audience"/>
+                            <Value Type="UserMulti">100</Value>
+                        </Eq>
+                        <Eq>
+                            <FieldRef Name="Audience"/>
+                            <Value Type="UserMulti">101</Value>
+                        </Eq>
                     </Or>
                 </And>
-            </Where>
-        </Query>`))
+                <Or>
+                    <Eq>
+                        <FieldRef Name="Title"/>
+                        <Value Type="Text">Test Suites</Value>
+                    </Eq>
+                    <And>
+                        <Eq>
+                            <FieldRef Name="Status"/>
+                            <Value Type="Choice">Open</Value>
+                        </Eq>
+                        <Gt>
+                            <FieldRef Name="Created"/>
+                            <Value Type="DateTime" IncludeTimeValue="TRUE">2019-01-01T00:00:00.000Z</Value>
+                        </Gt>
+                    </And>
+                </Or>
+            </And>
+        </Where>
+    </Query>`))
 })
 
 it("Test Join queries", () => {
@@ -159,6 +177,43 @@ it("Test Date", () => {
                     <FieldRef Name="Created"/>
                     <Value Type="DateTime" IncludeTimeValue="TRUE">2019-01-01T00:00:00.000Z</Value>
                 </Gt>
+            </Where>
+        </Query>`))
+})
+
+it("Test Lookup", () => {
+    let q = query(
+        where(
+            lookupField("City").idEqualTo(2)
+        )
+    )
+    expect(vkbeautify.xml(q)).toEqual(vkbeautify.xml(
+        `<Query>
+            <Where>
+                <Eq>
+                    <FieldRef Name="City" LookupId="TRUE"/>
+                    <Value Type="Integer">2</Value>
+                </Eq>
+            </Where>
+        </Query>`))
+})
+
+it("Test In", () => {
+    let q = query(
+        where(
+            numberField("Population").in(2, 3)
+        )
+    )
+    expect(vkbeautify.xml(q)).toEqual(vkbeautify.xml(
+        `<Query>
+            <Where>
+                <In>
+                    <FieldRef Name="Population" />
+                    <Values>
+                        <Value Type="Number">2</Value>
+                        <Value Type="Number">3</Value>
+                    </Values>
+                </In>
             </Where>
         </Query>`))
 })
