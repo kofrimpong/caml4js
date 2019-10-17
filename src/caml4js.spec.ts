@@ -1,4 +1,4 @@
-import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField } from './caml4js'
+import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField } from './caml4js'
 import * as vkbeautify from 'vkbeautify'
 
 it("Simple query", () => {
@@ -120,9 +120,9 @@ it("Test Join queries", () => {
     expect(vkbeautify.xml(v)).toEqual(vkbeautify.xml(
         `<View>
             <ViewFields>
-                <FieldRef Name="Title" />
-                <FieldRef Name="Country" />
-                <FieldRef Name="Population" />
+                <FieldRef Name="Title"/>
+                <FieldRef Name="Country"/>
+                <FieldRef Name="Population"/>
             </ViewFields>
             <Joins>
                 <Join Type="LEFT" ListAlias="Country">

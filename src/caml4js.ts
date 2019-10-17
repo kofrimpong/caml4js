@@ -11,9 +11,6 @@ export class Operator {
 
 export class FieldOperator extends Operator {
 
-    static NOW = "<Now/>";
-    static TODAY = "<Today/>"
-
     constructor(type: ValueType, internalName: string) {
         super(type, internalName);
 
@@ -100,16 +97,12 @@ export class FieldOperator extends Operator {
      * Checks whether the value of the field is equal to one of the specified values
      * @param arrayOfValues 
      */
-    in(...arrayOfValues: Date[] | number[] | string[]) {
+    in(...arrayOfValues: number[] | string[]) {
         let builder = `<In><FieldRef Name="${this.internalName}" /><Values>`;
         for (let i = 0; i < arrayOfValues.length; i++) {
-            var value = arrayOfValues[i];
-            if (value instanceof Date) {
-                value = value.toISOString();
-            }
-            builder += `<Value Type="${this.type}">${value}</Value>`
+            builder += `<Value Type="${this.type}">${arrayOfValues[i]}</Value>`
         }
-        return builder += '</Values>'
+        return builder += '</Values></In>'
     }
     /**
      * Searches for a string anywhere within a column that holds Text or Note field type values.
@@ -223,6 +216,22 @@ export class DateFieldOperator extends Operator {
             <FieldRef Name="${this.internalName}"/>
           </IsNotNull>`
     }
+    /**
+    * Checks whether the value of the field is equal to one of the specified values
+    * @param arrayOfValues 
+    */
+    in(...arrayOfValues: Date[]) {
+        let includeTime = '';
+        if (this.type == ValueType.DateTime) {
+            includeTime = ' IncludeTimeValue="TRUE"';
+        }
+        let builder = `<In><FieldRef Name="${this.internalName}" /><Values>`;
+        for (let i = 0; i < arrayOfValues.length; i++) {
+            var value = arrayOfValues[i];
+            builder += `<Value Type="${this.type}"${includeTime}>${value.toISOString()}</Value>`
+        }
+        return builder += '</Values></In>'
+    }
 }
 
 export class LookupFieldOperator extends Operator {
@@ -247,7 +256,7 @@ export class LookupFieldOperator extends Operator {
         for (let i = 0; i < arrayOfValues.length; i++) {
             builder += `<Value Type="${this.type}">${arrayOfValues[i]}</Value>`
         }
-        return builder += '</Values>'
+        return builder += '</Values></In>'
     }
     /**
      * If the specified field allows multiple values, specifies that 
@@ -411,7 +420,7 @@ export const joins = (...joins: Join[]) => {
 
 export const viewFields = (...viewFields: string[]) => {
     let viewStr = viewFields.reduce((accu, current) => {
-        return accu + `<FieldRef Name="${current}" />`
+        return accu + `<FieldRef Name="${current}"/>`
     }, '');
     return `<ViewFields>${viewStr}</ViewFields>`
 }
