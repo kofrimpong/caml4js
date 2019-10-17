@@ -111,27 +111,27 @@ export declare class LookupFieldOperator extends Operator {
  */
 export declare class UserFieldOperator extends Operator {
     /**
-     * Checks whether the value of the field is equal to current user
+     * Checks whether the value of the person field is equal to current user
      */
     equalToCurrentUser(): string;
     /**
-     * Checks whether the value of the field is in SharePoint group
+     * Checks whether the usr is a member of the specified SharePoint Group.
      */
-    isInSPGroup(): string;
+    isInSPGroup(groupId: number): string;
     /**
-     * Checks whether the value of the field is in SharePoint Web groups
+     * Checks whether the value of the field is member of current site collection
      */
     isInSPWebGroups(): string;
     /**
-     * Checks whether the value of the field is in SharePoint Web all users
+     * Checks whether the value of the field is in current SPWeb users
      */
     isInSPWebAllUsers(): string;
     /**
-     * Checks whether the value of the field is in SharePoint Web users
+     * Checks whether the value of the field is has rights to the site directly (not through a group)
      */
     isInSPWebUsers(): string;
     /**
-     * Checks whether the value of the field is in current user's SharePoint group
+     * Checks whether the value of the group field includes the current user.
      */
     isInCurrentUserGroups(): string;
     /**

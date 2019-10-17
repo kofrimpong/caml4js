@@ -258,37 +258,37 @@ var UserFieldOperator = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     /**
-     * Checks whether the value of the field is equal to current user
+     * Checks whether the value of the person field is equal to current user
      */
     UserFieldOperator.prototype.equalToCurrentUser = function () {
         return "<Eq>\n            <FieldRef Name=\"" + this.internalName + "\" LookupId=\"TRUE\"/>\n            <Value Type=\"" + ValueType.Integer + "\"><UserID/></Value>\n          </Eq>";
     };
     /**
-     * Checks whether the value of the field is in SharePoint group
+     * Checks whether the usr is a member of the specified SharePoint Group.
      */
-    UserFieldOperator.prototype.isInSPGroup = function () {
-        return this.memberOf(ValueType.SPGroup);
+    UserFieldOperator.prototype.isInSPGroup = function (groupId) {
+        return "<Membership Type=\"" + ValueType.SPGroup + "\" ID=\"" + groupId + "\">\n            <FieldRef Name=\"" + this.internalName + "\"/>\n        </Membership>";
     };
     /**
-     * Checks whether the value of the field is in SharePoint Web groups
+     * Checks whether the value of the field is member of current site collection
      */
     UserFieldOperator.prototype.isInSPWebGroups = function () {
         return this.memberOf(ValueType.SPWebGroups);
     };
     /**
-     * Checks whether the value of the field is in SharePoint Web all users
+     * Checks whether the value of the field is in current SPWeb users
      */
     UserFieldOperator.prototype.isInSPWebAllUsers = function () {
         return this.memberOf(ValueType.SPWebAllUsers);
     };
     /**
-     * Checks whether the value of the field is in SharePoint Web users
+     * Checks whether the value of the field is has rights to the site directly (not through a group)
      */
     UserFieldOperator.prototype.isInSPWebUsers = function () {
         return this.memberOf(ValueType.SPWebUsers);
     };
     /**
-     * Checks whether the value of the field is in current user's SharePoint group
+     * Checks whether the value of the group field includes the current user.
      */
     UserFieldOperator.prototype.isInCurrentUserGroups = function () {
         return this.memberOf(ValueType.CurrentUserGroups);
