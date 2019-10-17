@@ -34,7 +34,7 @@ In node:
 var caml4js = require('caml4js');
 ```
 
-ES5 modules:
+ES6 modules:
 ```js
 import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and} from 'caml4js';
 ```
@@ -46,6 +46,7 @@ It's important to keep in mind the structure of CAML query and how Caml4Js tries
 ```
 view/
   viewFields/
+  aggregations/
   joins/
     join/
   projections/
@@ -53,6 +54,7 @@ view/
     where/
     orderBy/
     groupBy/
+  rowLimit/
 ```
 Assume we want to fetch the Name and Population size from a SharePoint list where the country name is Ghana.
 To generate the CAML query using Caml4Js, you could use the following code:

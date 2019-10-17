@@ -1,3 +1,6 @@
+/**
+ * A base class for Operators
+ */
 export class Operator {
 
     protected internalName: string;
@@ -9,6 +12,9 @@ export class Operator {
     }
 }
 
+/**
+ * A general operator for comparison
+ */
 export class FieldOperator extends Operator {
 
     constructor(type: ValueType, internalName: string) {
@@ -114,6 +120,11 @@ export class FieldOperator extends Operator {
             <Value Type="${this.type}">${value}</Value>
           </Contains>`
     }
+    /**
+     * If the specified field is a Lookup field that allows multiple values, specifies that 
+     * the value is not included in the list item for the field.
+     * @param value 
+     */
     notIncludes(value: number | string): string {
         return `<NotIncludes>
             <FieldRef Name="${this.internalName}"/>
@@ -133,6 +144,9 @@ export class FieldOperator extends Operator {
     }
 }
 
+/**
+ * A date operator for comparison
+ */
 export class DateFieldOperator extends Operator {
     constructor(type: ValueType, internalName: string) {
         super(type, internalName);
@@ -234,13 +248,18 @@ export class DateFieldOperator extends Operator {
     }
 }
 
+/**
+ * A lookup operator for comparison
+ */
 export class LookupFieldOperator extends Operator {
+    /** Checks whether the value of the field is equal to the specified ID value */
     idEqualTo(value: number): string {
         return `<Eq>
             <FieldRef Name="${this.internalName}" LookupId="TRUE"/>
             <Value Type="${this.type}">${value}</Value>
           </Eq>`
     }
+    /** Checks whether the value of the field is equal to the specified value */
     valueEqualTo(value: string): string {
         return `<Eq>
             <FieldRef Name="${this.internalName}"/>
@@ -271,26 +290,46 @@ export class LookupFieldOperator extends Operator {
     }
 }
 
+/**
+ * A User/Group operator for comparison
+ */
 export class UserFieldOperator extends Operator {
+    /**
+     * Checks whether the value of the field is equal to current user
+     */
     equalToCurrentUser(): string {
         return `<Eq>
             <FieldRef Name="${this.internalName}" LookupId="TRUE"/>
             <Value Type="${ValueType.Integer}"><UserID/></Value>
           </Eq>`
     }
+    /**
+     * Checks whether the value of the field is in SharePoint group
+     */
     isInSPGroup(): string {
         return this.memberOf(ValueType.SPGroup)
     }
+    /**
+     * Checks whether the value of the field is in SharePoint Web groups
+     */
     isInSPWebGroups(): string {
         return this.memberOf(ValueType.SPWebGroups)
     }
+    /**
+     * Checks whether the value of the field is in SharePoint Web all users
+     */
     isInSPWebAllUsers(): string {
         return this.memberOf(ValueType.SPWebAllUsers)
     }
+    /**
+     * Checks whether the value of the field is in SharePoint Web users
+     */
     isInSPWebUsers(): string {
         return this.memberOf(ValueType.SPWebUsers)
     }
-
+    /**
+     * Checks whether the value of the field is in current user's SharePoint group
+     */
     isInCurrentUserGroups(): string {
         return this.memberOf(ValueType.CurrentUserGroups)
     }
@@ -406,22 +445,45 @@ export enum ViewScope {
     RecursiveAll = "RecursiveAll"
 }
 
-
+/**
+ * Generates an And logical join CAML element
+ */
 export const and = (query1: string, query2: string) => {
     return "<And>" + query1 + query2 + "</And>"
 }
+/**
+ * Generates an Or logical join CAML element
+ * @param query1 
+ * @param query2 
+ */
 export const or = (query1: string, query2: string) => {
     return "<Or>" + query1 + query2 + "</Or>"
 }
 
+/**
+ * Generates a Where CAML element
+ * @param query 
+ */
 export const where = (query: string) => {
     return "<Where>" + query + "</Where>"
 }
 
+/**
+ * Generates a Join CAML element
+ * @param type 
+ * @param joinName 
+ * @param pkey 
+ * @param pJoinName 
+ * @param projections 
+ */
 export const join = (type: JoinType, joinName: string, pkey: string, pJoinName: string = '', projections: Projections[] = []) => {
     return new Join({ type: type, joinName: joinName, pkey: pkey, projections: projections, pJoinName: pJoinName })
 }
 
+/**
+ * Generates a JOINS CAML element
+ * @param joins 
+ */
 export const joins = (...joins: Join[]) => {
     let joinsStr = joins.reduce((accu, current) => {
         return accu + current.getJoinElement()
@@ -433,6 +495,10 @@ export const joins = (...joins: Join[]) => {
     return `<Joins>${joinsStr}</Joins><ProjectedFields>${projStr}</ProjectedFields>`
 }
 
+/**
+ * Generates a ViewFields CAML element
+ * @param viewFields 
+ */
 export const viewFields = (...viewFields: string[]) => {
     let viewStr = viewFields.reduce((accu, current) => {
         return accu + `<FieldRef Name="${current}"/>`
@@ -440,6 +506,10 @@ export const viewFields = (...viewFields: string[]) => {
     return `<ViewFields>${viewStr}</ViewFields>`
 }
 
+/**
+ * Generates a Query CAML element
+ * @param inputs 
+ */
 export const query = (...inputs: string[]) => {
     let viewStr = inputs.reduce((accu, current) => {
         return accu + current
@@ -447,6 +517,10 @@ export const query = (...inputs: string[]) => {
     return `<Query>${viewStr}</Query>`
 }
 
+/**
+ * Generates a View CAML element
+ * @param viewInputs 
+ */
 export const view = (...viewInputs: string[]) => {
     let viewStr = viewInputs.reduce((accu, current) => {
         return accu + current
@@ -454,6 +528,11 @@ export const view = (...viewInputs: string[]) => {
     return `<View>${viewStr}</View>`
 }
 
+/**
+ * Generates a View CAML element
+ * @param scope Specifies the recursive scope for a view of a document library.
+ * @param viewInputs 
+ */
 export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
     let viewStr = viewInputs.reduce((accu, current) => {
         return accu + current
@@ -461,6 +540,10 @@ export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
     return `<View Scope="${scope}">${viewStr}</View>`
 }
 
+/**
+ * Generates an OrderBy CAML element
+ * @param orderBy 
+ */
 export const orderBy = (...orderBy: { Field: string, DSC?: boolean }[]) => {
     let viewStr = orderBy.reduce((accu, current) => {
         let asc = current.DSC ? ` Ascending="FALSE"` : "";
@@ -468,59 +551,104 @@ export const orderBy = (...orderBy: { Field: string, DSC?: boolean }[]) => {
     }, '');
     return `<OrderBy>${viewStr}</OrderBy>`
 }
+/**
+ * Generate a GroupBy CAML element
+ * @param field 
+ */
 export const groupBy = (field: string) => {
     return `<GroupBy><FieldRef Name="${field}"/></GroupBy>`
 }
+/**
+ * Generates an Aggregations CAML element
+ * @param aggregations 
+ */
 export const aggregations = (...aggregations: { Name: string, Type: AggregationType }[]) => {
     let viewStr = aggregations.reduce((accu, current) => {
         return accu + `<FieldRef Name="${current.Name}" Type="${current.Type}"/>`
     }, '');
     return `<Aggregations Value="On">${viewStr}</Aggregations>`
 }
+/**
+ * Generates a RowLimit CAML element
+ * @param limit 
+ * @param paged 
+ */
 export const rowLimit = (limit: number, paged: boolean = false) => {
     let pageStr = paged ? ' Paged="TRUE"' : '';
     return `<RowLimit${pageStr}>${limit}</RowLimit>`
 }
+/**
+ * Gets an operator for a note field for comparison
+ * @param internalName 
+ */
 export const noteField = (internalName: string) => {
     return new FieldOperator(ValueType.Note, internalName)
 }
-
+/**
+ * Gets an operator for a choice field for comparison
+ * @param internalName 
+ */
 export const choiceField = (internalName: string) => {
     return new FieldOperator(ValueType.Choice, internalName)
 }
-
+/**
+ * Gets an operator for a compute field for comparison
+ */
 export const computedField = (internalName: string) => {
     return new FieldOperator(ValueType.Computed, internalName)
 }
-
+/**
+ * Gets an operator for a url field for comparison
+ * @param internalName 
+ */
 export const urlField = (internalName: string) => {
     return new FieldOperator(ValueType.URL, internalName)
 }
-
+/**
+ * Gets an operator for a number field for comparison
+ * @param internalName 
+ */
 export const numberField = (internalName: string) => {
     return new FieldOperator(ValueType.Number, internalName)
 }
-
+/**
+ * Gets an operator for a text field for comparison
+ * @param internalName 
+ */
 export const textField = (internalName: string) => {
     return new FieldOperator(ValueType.Text, internalName)
 }
-
+/**
+ * Gets an operator for a date field for comparison
+ * @param internalName 
+ */
 export const dateField = (internalName: string) => {
     return new DateFieldOperator(ValueType.Date, internalName)
 }
-
+/**
+ * Gets an operator for a boolean field for comparison
+ * @param internalName 
+ */
 export const booleanField = (internalName: string) => {
     return new FieldOperator(ValueType.Integer, internalName)
 }
-
+/**
+ * Gets an operator for a datetime field for comparison
+ * @param internalName 
+ */
 export const dateTimeField = (internalName: string) => {
     return new DateFieldOperator(ValueType.DateTime, internalName)
 }
-
+/**
+ * Gets an operator for a lookup field for comparison
+ */
 export const lookupField = (internalName: string) => {
     return new LookupFieldOperator(ValueType.Integer, internalName)
 }
-
+/**
+ * Gets an operator for a User field for comparison
+ * @param internalName 
+ */
 export const userField = (internalName: string) => {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName)
 }
