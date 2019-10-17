@@ -295,7 +295,7 @@ export class LookupFieldOperator extends Operator {
  */
 export class UserFieldOperator extends Operator {
     /**
-     * Checks whether the value of the field is equal to current user
+     * Checks whether the value of the person field is equal to current user
      */
     equalToCurrentUser(): string {
         return `<Eq>
@@ -304,31 +304,33 @@ export class UserFieldOperator extends Operator {
           </Eq>`
     }
     /**
-     * Checks whether the value of the field is in SharePoint group
+     * Checks whether the usr is a member of the specified SharePoint Group.
      */
-    isInSPGroup(): string {
-        return this.memberOf(ValueType.SPGroup)
+    isInSPGroup(groupId: number): string {
+        return `<Membership Type="${ValueType.SPGroup}" ID="${groupId}">
+            <FieldRef Name="${this.internalName}"/>
+        </Membership>`
     }
     /**
-     * Checks whether the value of the field is in SharePoint Web groups
+     * Checks whether the value of the field is member of current site collection
      */
     isInSPWebGroups(): string {
         return this.memberOf(ValueType.SPWebGroups)
     }
     /**
-     * Checks whether the value of the field is in SharePoint Web all users
+     * Checks whether the value of the field is in current SPWeb users
      */
     isInSPWebAllUsers(): string {
         return this.memberOf(ValueType.SPWebAllUsers)
     }
     /**
-     * Checks whether the value of the field is in SharePoint Web users
+     * Checks whether the value of the field is has rights to the site directly (not through a group)
      */
     isInSPWebUsers(): string {
         return this.memberOf(ValueType.SPWebUsers)
     }
     /**
-     * Checks whether the value of the field is in current user's SharePoint group
+     * Checks whether the value of the group field includes the current user.
      */
     isInCurrentUserGroups(): string {
         return this.memberOf(ValueType.CurrentUserGroups)

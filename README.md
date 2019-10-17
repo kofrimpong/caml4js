@@ -1,7 +1,7 @@
 # caml4js
 A declarative JavaScript library for creating SharePoint client-side CAML queries.
 
-All Query elements [mentioned on MSDN](http://msdn.microsoft.com/en-us/library/ms467521.aspx) is supported by Caml4Js
+All Query elements [mentioned in the CAML docs](https://docs.microsoft.com/en-us/sharepoint/dev/schema/query-schema) are supported by Caml4Js
 
 ## Table of Contents
 
@@ -96,7 +96,7 @@ let v = view(
             )
         )
 ```
-Let say we want the items where Country field is Ghana or USA:
+If you want items where Country field is Ghana or USA:
 ```js
 let v = view(
             viewFields("Name","Population"),
@@ -299,7 +299,7 @@ let v = view(
     </Query>
 </View>
 ```
-Let's consider another example. Suppose we have an `Orders`, `Customers` and `Cities` lists. The `Orders` list has a `CustomerName` field that looks up to a `Customers` list and that the latter list has a `CityName` field that looks up to a `Cities` list.
+Suppose we have an `Orders`, `Customers` and `Cities` lists. The `Orders` list has a `CustomerName` field that looks up to a `Customers` list and that the latter list has a `CityName` field that looks up to a `Cities` list.
 
 Let's see how we can return all orders from an `Orders` list where the customer’s city is London. 
 ```js
