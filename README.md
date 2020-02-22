@@ -13,12 +13,12 @@ All Query elements [mentioned in the CAML docs](https://docs.microsoft.com/en-us
 ## Installation
 Npm:
 ```
-npm install caml4js
+npm install caml4js --save
 ```
 
 Npm TypeScript definitions:
 ```
-npm install @types/caml4js
+npm install @types/caml4js --save-dev
 ```
 ## Usage
 
@@ -138,7 +138,7 @@ let v = view(
             viewFields("Name","Population"),
             query(
                 where(
-                    textField("Name").in("USA","Ghana")
+                    textField("Name").in(["USA","Ghana"])
                 )
             )
         )
@@ -179,7 +179,7 @@ let q = query(
                     textField("Title").equalTo("Test Suites"),
                     and(
                         choiceField("Status").equalTo("Open"),
-                        dateTimeField("Created").greaterThan(new Date(Date.UTC(2019, 0, 1)))
+                        dateTimeField("Created").greaterThan("2019-01-01T00:00:00.000Z")
                     )
                 )
             )

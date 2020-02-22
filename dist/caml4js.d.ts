@@ -40,7 +40,7 @@ export declare class FieldOperator extends Operator {
      * Checks whether the value of the field is equal to one of the specified values
      * @param arrayOfValues
      */
-    in(...arrayOfValues: number[] | string[]): string;
+    in(arrayOfValues: number[] | string[]): string;
     /**
      * Searches for a string anywhere within a column that holds Text or Note field type values.
      * @param value
@@ -64,18 +64,18 @@ export declare class FieldOperator extends Operator {
  */
 export declare class DateFieldOperator extends Operator {
     constructor(type: ValueType, internalName: string);
-    /** Checks whether the value of the field is equal to the specified value */
-    equalTo(value: Date): string;
-    /** Checks whether the value of the field is not equal to the specified value */
-    notEqualTo(value: Date): string;
-    /** Checks whether the value of the field is greater than the specified value */
-    greaterThan(value: Date): string;
-    /** Checks whether the value of the field is less than the specified value */
-    lessThan(value: Date): string;
-    /** Checks whether the value of the field is greater than or equal to the specified value */
-    greaterThanOrEqualTo(value: Date): string;
-    /** Checks whether the value of the field is less than or equal to the specified value */
-    lessThanOrEqualTo(value: Date): string;
+    /** Checks whether the value of the field is equal to the specified value in ISO format */
+    equalTo(value: string): string;
+    /** Checks whether the value of the field is not equal to the specified value in ISO format*/
+    notEqualTo(value: string): string;
+    /** Checks whether the value of the field is greater than the specified value in ISO format*/
+    greaterThan(value: string): string;
+    /** Checks whether the value of the field is less than the specified value in ISO format*/
+    lessThan(value: string): string;
+    /** Checks whether the value of the field is greater than or equal to the specified value in ISO format*/
+    greaterThanOrEqualTo(value: string): string;
+    /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
+    lessThanOrEqualTo(value: string): string;
     /** Checks whether the value of the field was specified by user */
     isNull(): string;
     /** Checks whether the value of the field was not specified by user */
@@ -84,7 +84,7 @@ export declare class DateFieldOperator extends Operator {
     * Checks whether the value of the field is equal to one of the specified values
     * @param arrayOfValues
     */
-    in(...arrayOfValues: Date[]): string;
+    in(arrayOfValues: string[]): string;
 }
 /**
  * A lookup operator for comparison
@@ -98,7 +98,7 @@ export declare class LookupFieldOperator extends Operator {
      * Checks whether the value of the field is equal to one of the specified values
      * @param arrayOfValues
      */
-    idIn(...arrayOfValues: number[]): string;
+    idIn(arrayOfValues: number[]): string;
     /**
      * If the specified field allows multiple values, specifies that
      * the value is included in the list item for the field.
@@ -110,12 +110,16 @@ export declare class LookupFieldOperator extends Operator {
  * A User/Group operator for comparison
  */
 export declare class UserFieldOperator extends Operator {
+    /** Checks whether the id of the person field is equal to the specified ID value */
+    idEqualTo(id: number): string;
+    /** Checks whether the display name of the person field is equal to the specified value */
+    displayNameEqualTo(value: string): string;
     /**
      * Checks whether the value of the person field is equal to current user
      */
     equalToCurrentUser(): string;
     /**
-     * Checks whether the usr is a member of the specified SharePoint Group.
+     * Checks whether the user is a member of the specified SharePoint Group.
      */
     isInSPGroup(groupId: number): string;
     /**
@@ -146,7 +150,7 @@ export declare enum JoinType {
     LEFT = "LEFT",
     INNER = "INNER"
 }
-export interface Projections {
+export interface IProjections {
     /**
      * Projected Name
      */
@@ -159,7 +163,7 @@ export declare class Join {
     joinName: string;
     pkey: string;
     pJoinName: string;
-    projections: Projections[];
+    projections: IProjections[];
     /**
      *
      */
@@ -238,7 +242,7 @@ export declare const where: (query: string) => string;
  * @param pJoinName
  * @param projections
  */
-export declare const join: (type: JoinType, joinName: string, pkey: string, pJoinName?: string, projections?: Projections[]) => Join;
+export declare const join: (type: JoinType, joinName: string, pkey: string, pJoinName?: string, projections?: IProjections[]) => Join;
 /**
  * Generates a JOINS CAML element
  * @param joins
@@ -265,14 +269,15 @@ export declare const view: (...viewInputs: string[]) => string;
  * @param viewInputs
  */
 export declare const viewRecursive: (scope: ViewScope, ...viewInputs: string[]) => string;
+export interface IOrderBy {
+    Field: string;
+    Desc?: boolean;
+}
 /**
  * Generates an OrderBy CAML element
  * @param orderBy
  */
-export declare const orderBy: (...orderBy: {
-    Field: string;
-    DSC?: boolean;
-}[]) => string;
+export declare const orderBy: (...orderBy: IOrderBy[]) => string;
 /**
  * Generate a GroupBy CAML element
  * @param field
