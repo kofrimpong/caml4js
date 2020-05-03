@@ -249,6 +249,11 @@ export declare const join: (type: JoinType, joinName: string, pkey: string, pJoi
  */
 export declare const joins: (...joins: Join[]) => string;
 /**
+ * Removes line breaks from supplied query string
+ * @param query
+ */
+export declare const sanitizeQuery: (query: string) => string;
+/**
  * Generates a ViewFields CAML element
  * @param viewFields
  */
