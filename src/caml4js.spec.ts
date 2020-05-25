@@ -1,4 +1,4 @@
-import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField, lookupField } from './caml4js'
+import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField, lookupField, whereBuilder } from './caml4js'
 import * as vkbeautify from 'vkbeautify'
 
 it("Simple query", () => {
@@ -20,12 +20,12 @@ it("Simple query", () => {
         `<Query>
             <Where>
                 <Or>
-                    <Eq><FieldRef Name='Email'/><Value Type='Text'>info@github.com</Value></Eq>
+                    <Eq><FieldRef Name="Email"/><Value Type="Text">info@github.com</Value></Eq>
                     <Or>
-                        <Eq><FieldRef Name='Subject'/><Value Type='Text'>Hello Caml3Js Users</Value></Eq>
+                        <Eq><FieldRef Name="Subject"/><Value Type="Text">Hello Caml3Js Users</Value></Eq>
                         <Or>
-                            <BeginsWith><FieldRef Name='Subject'/><Value Type='Text'>Caml4Js</Value></BeginsWith>
-                            <Contains><FieldRef Name='Content'/><Value Type='Text'>SharePoint</Value></Contains>
+                            <BeginsWith><FieldRef Name="Subject"/><Value Type="Text">Caml4Js</Value></BeginsWith>
+                            <Contains><FieldRef Name="Content"/><Value Type="Text">SharePoint</Value></Contains>
                         </Or>
                     </Or>
                 </Or>
@@ -48,15 +48,15 @@ it("Test membership", () => {
         `<Query>
             <Where>
                 <Or>
-                    <Eq><FieldRef Name='AssignedTo' LookupId='TRUE'/><Value Type='Integer'><UserID/></Value></Eq>
-                    <Membership Type='CurrentUserGroups'><FieldRef Name='AssignedTo'/></Membership>
+                    <Eq><FieldRef Name="AssignedTo" LookupId="TRUE"/><Value Type="Integer"><UserID/></Value></Eq>
+                    <Membership Type="CurrentUserGroups"><FieldRef Name="AssignedTo"/></Membership>
                 </Or>
             </Where>
             <GroupBy>
-                <FieldRef Name='Category'/>
+                <FieldRef Name="Category"/>
             </GroupBy>
             <OrderBy>
-                <FieldRef Name='Priority'/><FieldRef Name='Title'/>
+                <FieldRef Name="Priority"/><FieldRef Name="Title"/>
             </OrderBy>
         </Query>`))
 })
@@ -88,33 +88,33 @@ it("Tests nested expressions", () => {
             <And>
                 <And>
                     <Eq>
-                        <FieldRef Name='Enabled'/>
-                        <Value Type='Integer'>1</Value>
+                        <FieldRef Name="Enabled"/>
+                        <Value Type="Integer">1</Value>
                     </Eq>
                     <Or>
                         <Eq>
-                            <FieldRef Name='Audience'/>
-                            <Value Type='UserMulti'>100</Value>
+                            <FieldRef Name="Audience"/>
+                            <Value Type="UserMulti">100</Value>
                         </Eq>
                         <Eq>
-                            <FieldRef Name='Audience'/>
-                            <Value Type='UserMulti'>101</Value>
+                            <FieldRef Name="Audience"/>
+                            <Value Type="UserMulti">101</Value>
                         </Eq>
                     </Or>
                 </And>
                 <Or>
                     <Eq>
-                        <FieldRef Name='Title'/>
-                        <Value Type='Text'>Test Suites</Value>
+                        <FieldRef Name="Title"/>
+                        <Value Type="Text">Test Suites</Value>
                     </Eq>
                     <And>
                         <Eq>
-                            <FieldRef Name='Status'/>
-                            <Value Type='Choice'>Open</Value>
+                            <FieldRef Name="Status"/>
+                            <Value Type="Choice">Open</Value>
                         </Eq>
                         <Gt>
-                            <FieldRef Name='Created'/>
-                            <Value Type='DateTime' IncludeTimeValue='TRUE'>2019-01-01T00:00:00.000Z</Value>
+                            <FieldRef Name="Created"/>
+                            <Value Type="DateTime" IncludeTimeValue="TRUE">2019-01-01T00:00:00.000Z</Value>
                         </Gt>
                     </And>
                 </Or>
@@ -138,26 +138,26 @@ it("Test Join queries", () => {
     expect(vkbeautify.xml(v)).toEqual(vkbeautify.xml(
         `<View>
             <ViewFields>
-                <FieldRef Name='Title'/>
-                <FieldRef Name='Country'/>
-                <FieldRef Name='Population'/>
+                <FieldRef Name="Title"/>
+                <FieldRef Name="Country"/>
+                <FieldRef Name="Population"/>
             </ViewFields>
             <Joins>
-                <Join Type='LEFT' ListAlias='Country'>
+                <Join Type="LEFT" ListAlias="Country">
                     <Eq>
-                        <FieldRef Name='Country' RefType='Id' />
-                        <FieldRef Name='ID' List='Country'/>
+                        <FieldRef Name="Country" RefType="Id" />
+                        <FieldRef Name="ID" List="Country"/>
                     </Eq>
                 </Join>
             </Joins>
             <ProjectedFields>
-                <Field Name='Population' Type='Lookup' List='Country' ShowField='y4r6'/>
+                <Field Name="Population" Type="Lookup" List="Country" ShowField="y4r6"/>
             </ProjectedFields>
             <Query>
                 <Where>
                     <Lt>
-                        <FieldRef Name='Population'/>
-                        <Value Type='Number'>10</Value>
+                        <FieldRef Name="Population"/>
+                        <Value Type="Number">10</Value>
                     </Lt>
                 </Where>
             </Query>
@@ -174,8 +174,8 @@ it("Test Date", () => {
         `<Query>
             <Where>
                 <Gt>
-                    <FieldRef Name='Created'/>
-                    <Value Type='DateTime' IncludeTimeValue='TRUE'>2019-01-01T00:00:00.000Z</Value>
+                    <FieldRef Name="Created"/>
+                    <Value Type="DateTime" IncludeTimeValue="TRUE">2019-01-01T00:00:00.000Z</Value>
                 </Gt>
             </Where>
         </Query>`))
@@ -191,8 +191,8 @@ it("Test Lookup", () => {
         `<Query>
             <Where>
                 <Eq>
-                    <FieldRef Name='City' LookupId='TRUE'/>
-                    <Value Type='Integer'>2</Value>
+                    <FieldRef Name="City" LookupId="TRUE"/>
+                    <Value Type="Integer">2</Value>
                 </Eq>
             </Where>
         </Query>`))
@@ -208,12 +208,54 @@ it("Test In", () => {
         `<Query>
             <Where>
                 <In>
-                    <FieldRef Name='Population' />
+                    <FieldRef Name="Population" />
                     <Values>
-                        <Value Type='Number'>2</Value>
-                        <Value Type='Number'>3</Value>
+                        <Value Type="Number">2</Value>
+                        <Value Type="Number">3</Value>
                     </Values>
                 </In>
             </Where>
         </Query>`))
+})
+
+it("Test builder", () => {
+    const builder = whereBuilder();
+    builder.addQuery(booleanField("Enabled").isTrue());
+
+    // somewhere in the code
+    builder.addQuery(
+        or(
+            userField("Audience").includes(100),
+            userField("Audience").includes(101)
+        )
+    );
+
+    let v = view(
+        query(
+            builder.toWhere()
+        )
+    );
+    expect(vkbeautify.xml(v)).toEqual(vkbeautify.xml(
+        `<View>
+            <Query>
+                <Where>
+                    <And>
+                        <Eq>
+                            <FieldRef Name="Enabled"/>
+                            <Value Type="Integer">1</Value>
+                        </Eq>
+                        <Or>
+                            <Eq>
+                                <FieldRef Name="Audience"/>
+                                <Value Type="UserMulti">100</Value>
+                            </Eq>
+                            <Eq>
+                                <FieldRef Name="Audience"/>
+                                <Value Type="UserMulti">101</Value>
+                            </Eq>
+                        </Or>
+                    </And>
+                </Where>
+            </Query>
+        </View>`))
 })

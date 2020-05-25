@@ -8,7 +8,7 @@ All Query elements [mentioned in the CAML docs](https://docs.microsoft.com/en-us
 - [Intallation](#installation)
 - [Usage](#usage)
 - [Basics](#basics)
-
+- [Dynamic Where](#dynamic-where-(wherebuilder))
 
 ## Installation
 Npm:
@@ -166,24 +166,24 @@ let v = view(
 Caml4Js makes it easy to generate complex queries.
 ```js
 let q = query(
-        where(
-            and(
+            where(
                 and(
-                    booleanField("Enabled").isTrue(),
-                    or(
-                        userField("Audience").includes(100),
-                        userField("Audience").includes(101)
-                    )
-                ),
-                or(
-                    textField("Title").equalTo("Test Suites"),
                     and(
-                        choiceField("Status").equalTo("Open"),
-                        dateTimeField("Created").greaterThan("2019-01-01T00:00:00.000Z")
+                        booleanField("Enabled").isTrue(),
+                        or(
+                            userField("Audience").includes(100),
+                            userField("Audience").includes(101)
+                        )
+                    ),
+                    or(
+                        textField("Title").equalTo("Test Suites"),
+                        and(
+                            choiceField("Status").equalTo("Open"),
+                            dateTimeField("Created").greaterThan("2019-01-01T00:00:00.000Z")
+                        )
                     )
                 )
             )
-        )
     )
 ```
 ```xml
@@ -299,7 +299,7 @@ let v = view(
     </Query>
 </View>
 ```
-Suppose we have an `Orders`, `Customers` and `Cities` lists. The `Orders` list has a `CustomerName` field that looks up to a `Customers` list and that the latter list has a `CityName` field that looks up to a `Cities` list.
+Suppose we have an `Orders`, `Customers` and `Cities` lists. The `Orders` list has a `CustomerName` field that looks up to a `Customers` list, and that the `Customers` list has a `CityName` field that looks up to a `Cities` list.
 
 Let's see how we can return all orders from an `Orders` list where the customer’s city is London. 
 ```js
@@ -348,4 +348,56 @@ this will give us the following
         </Where>
     </Query>
 </View>
+```
+
+## Dynamic Where (WhereBuilder)
+You can use WhereBuilder to generate a dynamic WHERE element.
+```js
+    const builder = whereBuilder();
+    builder.addQuery(booleanField("Enabled").isTrue());
+
+    //somewhere in the code
+    builder.addQuery(
+        or(
+            userField("Audience").includes(100),
+            userField("Audience").includes(101)
+        )
+    );
+
+    let v = view(
+                viewFields("Name","Population"),
+                query(
+                    builder.toWhere()
+                )
+        );
+```
+this will give us
+```xml
+<View>
+    <Query>
+        <Where>
+            <And>
+                <Eq>
+                    <FieldRef Name="Enabled"/>
+                    <Value Type="Integer">1</Value>
+                </Eq>
+                <Or>
+                    <Eq>
+                        <FieldRef Name="Audience"/>
+                        <Value Type="UserMulti">100</Value>
+                    </Eq>
+                    <Eq>
+                        <FieldRef Name="Audience"/>
+                        <Value Type="UserMulti">101</Value>
+                    </Eq>
+                </Or>
+            </And>
+        </Where>
+    </Query>
+</View>
+```
+WhereBuilder can be chained
+```js
+builder.addQuery(booleanField("Enabled").isTrue())
+        .addQuery(userField("Audience").includes(101))
 ```

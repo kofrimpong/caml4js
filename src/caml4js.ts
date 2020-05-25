@@ -10,6 +10,19 @@ export class Operator {
         this.internalName = internalName;
         this.type = type;
     }
+
+    /** Checks whether the value of the field was specified by user */
+    isNull(): string {
+        return `<IsNull>
+            <FieldRef Name="${this.internalName}"/>
+          </IsNull>`
+    }
+    /** Checks whether the value of the field was not specified by user */
+    isNotNull(): string {
+        return `<IsNotNull>
+            <FieldRef Name="${this.internalName}"/>
+          </IsNotNull>`
+    }
 }
 
 /**
@@ -76,18 +89,6 @@ export class FieldOperator extends Operator {
             <FieldRef Name="${this.internalName}"/>
             <Value Type="${this.type}">${value}</Value>
           </Leq>`
-    }
-    /** Checks whether the value of the field was specified by user */
-    isNull(): string {
-        return `<IsNull>
-            <FieldRef Name="${this.internalName}"/>
-          </IsNull>`
-    }
-    /** Checks whether the value of the field was not specified by user */
-    isNotNull(): string {
-        return `<IsNotNull>
-            <FieldRef Name="${this.internalName}"/>
-          </IsNotNull>`
     }
     /**
      * Searches for a string at the start of a column that holds Text or Note field type values.
@@ -218,18 +219,6 @@ export class DateFieldOperator extends Operator {
             <Value Type="${this.type}"${includeTime}>${value}</Value>
           </Leq>`
     }
-    /** Checks whether the value of the field was specified by user */
-    isNull(): string {
-        return `<IsNull>
-            <FieldRef Name="${this.internalName}"/>
-          </IsNull>`
-    }
-    /** Checks whether the value of the field was not specified by user */
-    isNotNull(): string {
-        return `<IsNotNull>
-            <FieldRef Name="${this.internalName}"/>
-          </IsNotNull>`
-    }
     /**
     * Checks whether the value of the field is equal to one of the specified values
     * @param arrayOfValues 
@@ -271,6 +260,17 @@ export class LookupFieldOperator extends Operator {
      */
     idIn(arrayOfValues: number[]) {
         let builder = `<In><FieldRef LookupId="True" Name="${this.internalName}"/><Values>`;
+        for (let i = 0; i < arrayOfValues.length; i++) {
+            builder += `<Value Type="${this.type}">${arrayOfValues[i]}</Value>`
+        }
+        return builder += "</Values></In>"
+    }
+    /**
+     * Checks whether the value of the field is equal to one of the specified values
+     * @param arrayOfValues 
+     */
+    valueIn(arrayOfValues: string[]) {
+        let builder = `<In><FieldRef Name="${this.internalName}"/><Values>`;
         for (let i = 0; i < arrayOfValues.length; i++) {
             builder += `<Value Type="${this.type}">${arrayOfValues[i]}</Value>`
         }
@@ -368,6 +368,63 @@ export class UserFieldOperator extends Operator {
     }
 }
 
+/**
+ * A dynamic WHERE element builder
+ */
+export class WhereBuilder {
+
+    private queries: string[] = [];
+
+    /**
+     *
+     */
+    constructor() {
+    }
+
+    /**
+     * Add query
+     * @param query the query string
+     */
+    addQuery(query: string) {
+        this.queries.push(query);
+        return this;
+    }
+
+    /**
+     * Returns a WHERE string
+     */
+    toWhere() {
+        const genQuery = (queryArr: string[]) => {
+            let count = 0;
+            let len = queryArr.length;
+            let text = ''
+            while (count < len) {
+                if (count + 1 < len) {
+                    text += and(queryArr[count], queryArr[++count])
+                }
+                else {
+                    text += queryArr[count]
+                }
+                ++count
+            }
+            if (len > 2) {
+                text = '<And>' + text + '</And>'
+            }
+            return text;
+        }
+        return where(
+            genQuery(this.queries)
+        )
+    }
+    /**
+     * Clone this query builder
+     */
+    clone() {
+        const dynQuery = new WhereBuilder();
+        dynQuery.queries = this.queries.slice(0, this.queries.length);
+        return dynQuery;
+    }
+}
 export enum JoinType {
     LEFT = "LEFT",
     INNER = "INNER"
@@ -380,6 +437,9 @@ export interface IProjections {
     Type: FieldType,
     Field: string
 }
+/**
+ * A join element
+ */
 export class Join {
     type: JoinType
     joinName: string
@@ -422,7 +482,7 @@ export enum FieldType {
     Note = "Note"
 }
 
-enum ValueType {
+export enum ValueType {
     Integer = "Integer",
     Text = "Text",
     Date = "Date",
@@ -439,7 +499,8 @@ enum ValueType {
     URL = "URL",
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
-    Number = "Number"
+    Number = "Number",
+    File = "File"
 }
 
 export enum AggregationType {
@@ -516,7 +577,7 @@ export const joins = (...joins: Join[]) => {
  * Removes line breaks from supplied query string
  * @param query 
  */
-export const sanitizeQuery = (query:string)=>{
+export const sanitizeQuery = (query: string) => {
     return query.replace(/[\n\r]/gm, "");
 }
 
@@ -690,4 +751,18 @@ export const lookupField = (internalName: string) => {
  */
 export const userField = (internalName: string) => {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName)
+}
+
+/**
+ * Gets an operator for a document library file name field for comparison
+ */
+export const documentNameField = () => {
+    return new FieldOperator(ValueType.File, 'FileLeafRef')
+}
+
+/**
+ * Gets a dynamic WHERE element builder
+ */
+export const whereBuilder = () => {
+    return new WhereBuilder()
 }
