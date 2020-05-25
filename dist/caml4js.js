@@ -21,6 +21,14 @@ var Operator = /** @class */ (function () {
         this.internalName = internalName;
         this.type = type;
     }
+    /** Checks whether the value of the field was specified by user */
+    Operator.prototype.isNull = function () {
+        return "<IsNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNull>";
+    };
+    /** Checks whether the value of the field was not specified by user */
+    Operator.prototype.isNotNull = function () {
+        return "<IsNotNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNotNull>";
+    };
     return Operator;
 }());
 exports.Operator = Operator;
@@ -63,14 +71,6 @@ var FieldOperator = /** @class */ (function (_super) {
     /** Checks whether the value of the field is less than or equal to the specified value */
     FieldOperator.prototype.lessThanOrEqualTo = function (value) {
         return "<Leq>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n            <Value Type=\"" + this.type + "\">" + value + "</Value>\n          </Leq>";
-    };
-    /** Checks whether the value of the field was specified by user */
-    FieldOperator.prototype.isNull = function () {
-        return "<IsNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNull>";
-    };
-    /** Checks whether the value of the field was not specified by user */
-    FieldOperator.prototype.isNotNull = function () {
-        return "<IsNotNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNotNull>";
     };
     /**
      * Searches for a string at the start of a column that holds Text or Note field type values.
@@ -172,14 +172,6 @@ var DateFieldOperator = /** @class */ (function (_super) {
         }
         return "<Leq>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n            <Value Type=\"" + this.type + "\"" + includeTime + ">" + value + "</Value>\n          </Leq>";
     };
-    /** Checks whether the value of the field was specified by user */
-    DateFieldOperator.prototype.isNull = function () {
-        return "<IsNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNull>";
-    };
-    /** Checks whether the value of the field was not specified by user */
-    DateFieldOperator.prototype.isNotNull = function () {
-        return "<IsNotNull>\n            <FieldRef Name=\"" + this.internalName + "\"/>\n          </IsNotNull>";
-    };
     /**
     * Checks whether the value of the field is equal to one of the specified values
     * @param arrayOfValues
@@ -220,6 +212,17 @@ var LookupFieldOperator = /** @class */ (function (_super) {
      */
     LookupFieldOperator.prototype.idIn = function (arrayOfValues) {
         var builder = "<In><FieldRef LookupId=\"True\" Name=\"" + this.internalName + "\"/><Values>";
+        for (var i = 0; i < arrayOfValues.length; i++) {
+            builder += "<Value Type=\"" + this.type + "\">" + arrayOfValues[i] + "</Value>";
+        }
+        return builder += "</Values></In>";
+    };
+    /**
+     * Checks whether the value of the field is equal to one of the specified values
+     * @param arrayOfValues
+     */
+    LookupFieldOperator.prototype.valueIn = function (arrayOfValues) {
+        var builder = "<In><FieldRef Name=\"" + this.internalName + "\"/><Values>";
         for (var i = 0; i < arrayOfValues.length; i++) {
             builder += "<Value Type=\"" + this.type + "\">" + arrayOfValues[i] + "</Value>";
         }
@@ -302,11 +305,67 @@ var UserFieldOperator = /** @class */ (function (_super) {
     return UserFieldOperator;
 }(Operator));
 exports.UserFieldOperator = UserFieldOperator;
+/**
+ * A dynamic WHERE element builder
+ */
+var WhereBuilder = /** @class */ (function () {
+    /**
+     *
+     */
+    function WhereBuilder() {
+        this.queries = [];
+    }
+    /**
+     * Add query
+     * @param query the query string
+     */
+    WhereBuilder.prototype.addQuery = function (query) {
+        this.queries.push(query);
+        return this;
+    };
+    /**
+     * Returns a WHERE string
+     */
+    WhereBuilder.prototype.toWhere = function () {
+        var genQuery = function (queryArr) {
+            var count = 0;
+            var len = queryArr.length;
+            var text = '';
+            while (count < len) {
+                if (count + 1 < len) {
+                    text += exports.and(queryArr[count], queryArr[++count]);
+                }
+                else {
+                    text += queryArr[count];
+                }
+                ++count;
+            }
+            if (len > 2) {
+                text = '<And>' + text + '</And>';
+            }
+            return text;
+        };
+        return exports.where(genQuery(this.queries));
+    };
+    /**
+     * Clone this query builder
+     */
+    WhereBuilder.prototype.clone = function () {
+        var dynQuery = new WhereBuilder();
+        dynQuery.queries = this.queries.slice(0, this.queries.length);
+        return dynQuery;
+    };
+    return WhereBuilder;
+}());
+exports.WhereBuilder = WhereBuilder;
 var JoinType;
 (function (JoinType) {
     JoinType["LEFT"] = "LEFT";
     JoinType["INNER"] = "INNER";
 })(JoinType = exports.JoinType || (exports.JoinType = {}));
+/**
+ * A join element
+ */
 var Join = /** @class */ (function () {
     /**
      *
@@ -360,7 +419,8 @@ var ValueType;
     ValueType["LookupMulti"] = "LookupMulti";
     ValueType["UserMulti"] = "UserMulti";
     ValueType["Number"] = "Number";
-})(ValueType || (ValueType = {}));
+    ValueType["File"] = "File";
+})(ValueType = exports.ValueType || (exports.ValueType = {}));
 var AggregationType;
 (function (AggregationType) {
     AggregationType["Count"] = "Count";
@@ -625,5 +685,17 @@ exports.lookupField = function (internalName) {
  */
 exports.userField = function (internalName) {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName);
+};
+/**
+ * Gets an operator for a document library file name field for comparison
+ */
+exports.documentNameField = function () {
+    return new FieldOperator(ValueType.File, 'FileLeafRef');
+};
+/**
+ * Gets a dynamic WHERE element builder
+ */
+exports.whereBuilder = function () {
+    return new WhereBuilder();
 };
 //# sourceMappingURL=caml4js.js.map

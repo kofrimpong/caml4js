@@ -5,6 +5,10 @@ export declare class Operator {
     protected internalName: string;
     protected type: ValueType;
     constructor(type: ValueType, internalName: string);
+    /** Checks whether the value of the field was specified by user */
+    isNull(): string;
+    /** Checks whether the value of the field was not specified by user */
+    isNotNull(): string;
 }
 /**
  * A general operator for comparison
@@ -27,10 +31,6 @@ export declare class FieldOperator extends Operator {
     greaterThanOrEqualTo(value: number | string): string;
     /** Checks whether the value of the field is less than or equal to the specified value */
     lessThanOrEqualTo(value: number | string): string;
-    /** Checks whether the value of the field was specified by user */
-    isNull(): string;
-    /** Checks whether the value of the field was not specified by user */
-    isNotNull(): string;
     /**
      * Searches for a string at the start of a column that holds Text or Note field type values.
      * @param value
@@ -76,10 +76,6 @@ export declare class DateFieldOperator extends Operator {
     greaterThanOrEqualTo(value: string): string;
     /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
     lessThanOrEqualTo(value: string): string;
-    /** Checks whether the value of the field was specified by user */
-    isNull(): string;
-    /** Checks whether the value of the field was not specified by user */
-    isNotNull(): string;
     /**
     * Checks whether the value of the field is equal to one of the specified values
     * @param arrayOfValues
@@ -99,6 +95,11 @@ export declare class LookupFieldOperator extends Operator {
      * @param arrayOfValues
      */
     idIn(arrayOfValues: number[]): string;
+    /**
+     * Checks whether the value of the field is equal to one of the specified values
+     * @param arrayOfValues
+     */
+    valueIn(arrayOfValues: string[]): string;
     /**
      * If the specified field allows multiple values, specifies that
      * the value is included in the list item for the field.
@@ -146,6 +147,29 @@ export declare class UserFieldOperator extends Operator {
     includes(value: number): string;
     private memberOf;
 }
+/**
+ * A dynamic WHERE element builder
+ */
+export declare class WhereBuilder {
+    private queries;
+    /**
+     *
+     */
+    constructor();
+    /**
+     * Add query
+     * @param query the query string
+     */
+    addQuery(query: string): this;
+    /**
+     * Returns a WHERE string
+     */
+    toWhere(): string;
+    /**
+     * Clone this query builder
+     */
+    clone(): WhereBuilder;
+}
 export declare enum JoinType {
     LEFT = "LEFT",
     INNER = "INNER"
@@ -158,6 +182,9 @@ export interface IProjections {
     Type: FieldType;
     Field: string;
 }
+/**
+ * A join element
+ */
 export declare class Join {
     type: JoinType;
     joinName: string;
@@ -182,7 +209,7 @@ export declare enum FieldType {
     Date = "Date",
     Note = "Note"
 }
-declare enum ValueType {
+export declare enum ValueType {
     Integer = "Integer",
     Text = "Text",
     Date = "Date",
@@ -199,7 +226,8 @@ declare enum ValueType {
     URL = "URL",
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
-    Number = "Number"
+    Number = "Number",
+    File = "File"
 }
 export declare enum AggregationType {
     Count = "Count",
@@ -355,4 +383,11 @@ export declare const lookupField: (internalName: string) => LookupFieldOperator;
  * @param internalName
  */
 export declare const userField: (internalName: string) => UserFieldOperator;
-export {};
+/**
+ * Gets an operator for a document library file name field for comparison
+ */
+export declare const documentNameField: () => FieldOperator;
+/**
+ * Gets a dynamic WHERE element builder
+ */
+export declare const whereBuilder: () => WhereBuilder;
