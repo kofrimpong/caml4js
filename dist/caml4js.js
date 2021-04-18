@@ -190,7 +190,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Geq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Get>";
+        return "<Geq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Geq>";
     };
     /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
     DateFieldOperator.prototype.lessThanOrEqualTo = function (value) {

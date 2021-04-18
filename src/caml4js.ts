@@ -236,7 +236,7 @@ export class DateFieldOperator extends Operator {
         return `<Geq>
             <FieldRef Name='${this.internalName}'/>
             <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Get>`
+          </Geq>`
     }
     /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
     lessThanOrEqualTo(value: string): string {
