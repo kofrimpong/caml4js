@@ -257,16 +257,16 @@ let v = view(
 </View>
 ```
 ### Joins
-You can use Caml4Js for list joins and field projections to generate your CAML queries.
+You can use Caml4Js for list joins and field projections to generate your CAML queries. Suppose we have lists Student and Result with a lookup column called Candidate. [Joins](https://docs.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee539975(v=office.14))
 ```js
 let v = view(
-        viewFields("Name", "Population","City"),
+        viewFields("Grade","Name"),
         joins(
-            join(JoinType.LEFT, "Cities", "ID", "", [{ Name: "City", Field: "City", Type: FieldType.LookUp }])
+            join(JoinType.LEFT, "student", "Candidate","", [{ Name: "Name", Field: "Name"}])
         ),
         query(
             where(
-                numberField("Population").lessThan(5000)
+                textField("Name").equalTo("John")
             )
         )
     )
@@ -274,27 +274,26 @@ let v = view(
 ```xml
 <View>
     <ViewFields>
-        <FieldRef Name="Name"/>
-        <FieldRef Name="Population"/>
-        <FieldRef Name="City"/>
+        <FieldRef Name='Name'/>
+        <FieldRef Name='Grade'/>
     </ViewFields>
     <Joins>
-        <Join Type="LEFT" ListAlias="Cities">
+        <Join Type='LEFT' ListAlias='student'>
             <Eq>
-                <FieldRef Name="ID" RefType="Id" />
-                <FieldRef Name="ID" List="Cities"/>
+                <FieldRef Name='Candidate' RefType='Id'/>
+                <FieldRef Name='ID' List='student'/>
             </Eq>
         </Join>
     </Joins>
     <ProjectedFields>
-        <Field Name="City" Type="Lookup" List="Cities" ShowField="City"/>
+        <Field Name='Grade' Type='Lookup' List='student' ShowField='Grade'/>
     </ProjectedFields>
     <Query>
         <Where>
-            <Lt>
-                <FieldRef Name="Population"/>
-                <Value Type="Number">5000</Value>
-            </Lt>
+            <Eq>
+                <FieldRef Name='Name'/>
+                <Value Type='Text'>John</Value>
+            </Eq>
         </Where>
     </Query>
 </View>
@@ -307,7 +306,7 @@ let v = view(
         viewFields("CustomerCity"),
         joins(
             join(JoinType.LEFT, "customers", "CustomerName"),
-            join(JoinType.LEFT, "customerCities", "CityName", "customers", [{ Name: "CustomerCity", Field: "Title", Type: FieldType.LookUp }]),
+            join(JoinType.LEFT, "customerCities", "CityName", [{ Name: "CustomerCity", Field: "Title" }],"customers"),
         ),
         query(
             where(
@@ -323,21 +322,21 @@ this will give us the following
         <FieldRef Name="CustomerCity"/>
     </ViewFields>
     <Joins>
-        <Join Type="LEFT" ListAlias="customers">
+        <Join Type="LEFT" ListAlias="Customers">
             <Eq>
                 <FieldRef Name="CustomerName" RefType="Id" />
-                <FieldRef Name="ID" List="customers"/>
+                <FieldRef Name="ID" List="Customers"/>
             </Eq>
         </Join>
-        <Join Type="LEFT" ListAlias="customerCities">
+        <Join Type="LEFT" ListAlias="Cities">
             <Eq>
-                <FieldRef Name="CityName" RefType="Id" List="customers"/>
-                <FieldRef Name="ID" List="customerCities"/>
+                <FieldRef Name="CityName" RefType="Id"/>
+                <FieldRef Name="ID" List="Cities"/>
             </Eq>
         </Join>
     </Joins>
     <ProjectedFields>
-        <Field Name="CustomerCity" Type="Lookup" List="customerCities" ShowField="Title"/>
+        <Field Name="CustomerCity" Type="Lookup" List="Cities" ShowField="Title"/>
     </ProjectedFields>
     <Query>
         <Where>

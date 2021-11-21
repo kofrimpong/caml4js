@@ -1,4 +1,4 @@
-import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, FieldType, numberField, dateTimeField, choiceField, lookupField, whereBuilder } from './caml4js'
+import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, numberField, dateTimeField, choiceField, lookupField, whereBuilder } from './caml4js'
 import * as vkbeautify from 'vkbeautify'
 
 it("Simple query", () => {
@@ -125,39 +125,38 @@ it("Tests nested expressions", () => {
 
 it("Test Join queries", () => {
     let v = view(
-        viewFields("Title", "Country", "Population"),
+        viewFields("Name", "Grade"),
         joins(
-            join(JoinType.LEFT, "Country", "Country", "", [{ Name: "Population", Field: "y4r6", Type: FieldType.LookUp }])
+            join(JoinType.LEFT, "Student", "Candidate", "",[{ Name: "Grade", Field: "Grade" }])
         ),
         query(
             where(
-                numberField("Population").lessThan(10)
+                numberField("Age").lessThan(30)
             )
         )
     )
     expect(vkbeautify.xml(v)).toEqual(vkbeautify.xml(
         `<View>
             <ViewFields>
-                <FieldRef Name='Title'/>
-                <FieldRef Name='Country'/>
-                <FieldRef Name='Population'/>
+                <FieldRef Name='Name'/>
+                <FieldRef Name='Grade'/>
             </ViewFields>
             <Joins>
-                <Join Type='LEFT' ListAlias='Country'>
+                <Join Type='LEFT' ListAlias='Student'>
                     <Eq>
-                        <FieldRef Name='Country' RefType='Id' />
-                        <FieldRef Name='ID' List='Country'/>
+                        <FieldRef Name='Candidate' RefType='Id' />
+                        <FieldRef Name='ID' List='Student'/>
                     </Eq>
                 </Join>
             </Joins>
             <ProjectedFields>
-                <Field Name='Population' Type='Lookup' List='Country' ShowField='y4r6'/>
+                <Field Name='Grade' Type='Lookup' List='Student' ShowField='Grade'/>
             </ProjectedFields>
             <Query>
                 <Where>
                     <Lt>
-                        <FieldRef Name='Population'/>
-                        <Value Type='Number'>10</Value>
+                        <FieldRef Name='Age'/>
+                        <Value Type='Number'>30</Value>
                     </Lt>
                 </Where>
             </Query>

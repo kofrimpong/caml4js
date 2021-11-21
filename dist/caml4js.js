@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.ValueType = exports.FieldType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = void 0;
+exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.ValueType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -399,6 +399,9 @@ var Join = /** @class */ (function () {
      *
      */
     function Join(init) {
+        /**
+         * If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
+         */
         this.pJoinName = "";
         this.projections = [];
         //@ts-ignore
@@ -406,29 +409,17 @@ var Join = /** @class */ (function () {
     }
     Join.prototype.getJoinElement = function () {
         var listAlias = this.pJoinName ? "List='" + this.pJoinName + "'" : '';
-        return "<Join Type='" + this.type + "' ListAlias='" + this.joinName + "'>\n            <Eq>\n                <FieldRef Name='" + this.pkey + "' RefType='Id' " + listAlias + "/>\n                <FieldRef Name='ID' List='" + this.joinName + "'/>\n            </Eq>\n        </Join>";
+        return "<Join Type='" + this.type + "' ListAlias='" + this.joinName + "'>\n            <Eq>\n                <FieldRef Name='" + this.lookupField + "' RefType='Id' " + listAlias + "/>\n                <FieldRef Name='ID' List='" + this.joinName + "'/>\n            </Eq>\n        </Join>";
     };
     Join.prototype.getProjectionsElement = function () {
         var list = this.joinName;
         return this.projections.reduce(function (accum, current) {
-            return accum + ("<Field Name='" + current.Name + "' Type='" + current.Type + "' List='" + list + "' ShowField='" + current.Field + "'/>");
+            return accum + ("<Field Name='" + current.Name + "' Type='Lookup' List='" + list + "' ShowField='" + current.Field + "'/>");
         }, '');
     };
     return Join;
 }());
 exports.Join = Join;
-var FieldType;
-(function (FieldType) {
-    FieldType["LookUp"] = "Lookup";
-    FieldType["DateTime"] = "DateTime";
-    FieldType["Choice"] = "Choice";
-    FieldType["Computed"] = "Computed";
-    FieldType["URL"] = "URL";
-    FieldType["Number"] = "Number";
-    FieldType["Text"] = "Text";
-    FieldType["Date"] = "Date";
-    FieldType["Note"] = "Note";
-})(FieldType = exports.FieldType || (exports.FieldType = {}));
 var ValueType;
 (function (ValueType) {
     ValueType["Integer"] = "Integer";
@@ -494,15 +485,15 @@ exports.where = function (query) {
 /**
  * Generates a Join CAML element
  * @param type
- * @param joinName
- * @param pkey
- * @param pJoinName
+ * @param joinName Specifies an alternate name for the foreign list. There is no need to explicitly map the alias onto the real name of the foreign list because joins are only allowed through a lookup field relation and the foreign list is specified in the Lookup field definition.
+ * @param lookupField
+ * @param pJoinName If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
  * @param projections
  */
-exports.join = function (type, joinName, pkey, pJoinName, projections) {
-    if (pJoinName === void 0) { pJoinName = ""; }
+exports.join = function (type, joinName, lookupField, pJoinName, projections) {
+    if (pJoinName === void 0) { pJoinName = ''; }
     if (projections === void 0) { projections = []; }
-    return new Join({ type: type, joinName: joinName, pkey: pkey, projections: projections, pJoinName: pJoinName });
+    return new Join({ type: type, joinName: joinName, lookupField: lookupField, projections: projections, pJoinName: pJoinName });
 };
 /**
  * Generates a JOINS CAML element
@@ -526,7 +517,7 @@ exports.joins = function () {
  * @param query
  */
 exports.sanitizeQuery = function (query) {
-    return query.replace(/[\n\r]/gm, "");
+    return query.replace(/>\s+</g, '><');
 };
 /**
  * Generates a ViewFields CAML element

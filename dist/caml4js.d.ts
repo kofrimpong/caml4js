@@ -174,12 +174,25 @@ export declare enum JoinType {
     LEFT = "LEFT",
     INNER = "INNER"
 }
+/**
+ * Tt is also necessary that the fields created in the ProjectedFields element be specified in the ViewFields element.
+ * Only the following types of fields can be included in a ProjectedFields element:
+    Calculated (treated as plain text)
+    ContentTypeId
+    Counter
+    Currency
+    DateTime
+    Guid
+    Integer
+    Note (one-line only)
+    Number
+    Text
+ */
 export interface IProjections {
     /**
      * Projected Name
      */
     Name: string;
-    Type: FieldType;
     Field: string;
 }
 /**
@@ -187,8 +200,15 @@ export interface IProjections {
  */
 export declare class Join {
     type: JoinType;
+    /**
+     * Specifies an alternate name for the foreign list.
+     * There is no need to explicitly map the alias onto the real name of the foreign list because joins are only allowed through a lookup field relation and the foreign list is specified in the Lookup field definition.
+     */
     joinName: string;
-    pkey: string;
+    lookupField: string;
+    /**
+     * If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
+     */
     pJoinName: string;
     projections: IProjections[];
     /**
@@ -197,17 +217,6 @@ export declare class Join {
     constructor(init?: Partial<Join>);
     getJoinElement(): string;
     getProjectionsElement(): string;
-}
-export declare enum FieldType {
-    LookUp = "Lookup",
-    DateTime = "DateTime",
-    Choice = "Choice",
-    Computed = "Computed",
-    URL = "URL",
-    Number = "Number",
-    Text = "Text",
-    Date = "Date",
-    Note = "Note"
 }
 export declare enum ValueType {
     Integer = "Integer",
@@ -265,12 +274,12 @@ export declare const where: (query: string) => string;
 /**
  * Generates a Join CAML element
  * @param type
- * @param joinName
- * @param pkey
- * @param pJoinName
+ * @param joinName Specifies an alternate name for the foreign list. There is no need to explicitly map the alias onto the real name of the foreign list because joins are only allowed through a lookup field relation and the foreign list is specified in the Lookup field definition.
+ * @param lookupField
+ * @param pJoinName If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
  * @param projections
  */
-export declare const join: (type: JoinType, joinName: string, pkey: string, pJoinName?: string, projections?: IProjections[]) => Join;
+export declare const join: (type: JoinType, joinName: string, lookupField: string, pJoinName?: string, projections?: IProjections[]) => Join;
 /**
  * Generates a JOINS CAML element
  * @param joins

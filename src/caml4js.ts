@@ -2,32 +2,32 @@
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
     Object.defineProperty(Object, "assign", {
-      value: function assign(target, varArgs) { // .length of function is 2
-        'use strict';
-        if (target === null || target === undefined) {
-          throw new TypeError('Cannot convert undefined or null to object');
-        }
-  
-        var to = Object(target);
-  
-        for (var index = 1; index < arguments.length; index++) {
-          var nextSource = arguments[index];
-  
-          if (nextSource !== null && nextSource !== undefined) { 
-            for (var nextKey in nextSource) {
-              // Avoid bugs when hasOwnProperty is shadowed
-              if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                to[nextKey] = nextSource[nextKey];
-              }
+        value: function assign(target, varArgs) { // .length of function is 2
+            'use strict';
+            if (target === null || target === undefined) {
+                throw new TypeError('Cannot convert undefined or null to object');
             }
-          }
-        }
-        return to;
-      },
-      writable: true,
-      configurable: true
+
+            var to = Object(target);
+
+            for (var index = 1; index < arguments.length; index++) {
+                var nextSource = arguments[index];
+
+                if (nextSource !== null && nextSource !== undefined) {
+                    for (var nextKey in nextSource) {
+                        // Avoid bugs when hasOwnProperty is shadowed
+                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                            to[nextKey] = nextSource[nextKey];
+                        }
+                    }
+                }
+            }
+            return to;
+        },
+        writable: true,
+        configurable: true
     });
-  }
+}
 /**
  * A base class for Operators
  */
@@ -459,12 +459,26 @@ export enum JoinType {
     LEFT = "LEFT",
     INNER = "INNER"
 }
+
+/**
+ * Tt is also necessary that the fields created in the ProjectedFields element be specified in the ViewFields element.
+ * Only the following types of fields can be included in a ProjectedFields element:
+    Calculated (treated as plain text)
+    ContentTypeId
+    Counter
+    Currency
+    DateTime
+    Guid
+    Integer
+    Note (one-line only)
+    Number
+    Text
+ */
 export interface IProjections {
     /**
      * Projected Name
      */
     Name: string,
-    Type: FieldType,
     Field: string
 }
 /**
@@ -472,8 +486,15 @@ export interface IProjections {
  */
 export class Join {
     type: JoinType
+    /**
+     * Specifies an alternate name for the foreign list. 
+     * There is no need to explicitly map the alias onto the real name of the foreign list because joins are only allowed through a lookup field relation and the foreign list is specified in the Lookup field definition.
+     */
     joinName: string
-    pkey: string
+    lookupField: string
+    /**
+     * If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
+     */
     pJoinName: string = ""
     projections: IProjections[] = []
     /**
@@ -488,7 +509,7 @@ export class Join {
         let listAlias = this.pJoinName ? `List='${this.pJoinName}'` : '';
         return `<Join Type='${this.type}' ListAlias='${this.joinName}'>
             <Eq>
-                <FieldRef Name='${this.pkey}' RefType='Id' ${listAlias}/>
+                <FieldRef Name='${this.lookupField}' RefType='Id' ${listAlias}/>
                 <FieldRef Name='ID' List='${this.joinName}'/>
             </Eq>
         </Join>`
@@ -496,21 +517,9 @@ export class Join {
     getProjectionsElement() {
         let list = this.joinName;
         return this.projections.reduce((accum, current) => {
-            return accum + `<Field Name='${current.Name}' Type='${current.Type}' List='${list}' ShowField='${current.Field}'/>`
+            return accum + `<Field Name='${current.Name}' Type='Lookup' List='${list}' ShowField='${current.Field}'/>`
         }, '')
     }
-}
-
-export enum FieldType {
-    LookUp = "Lookup",
-    DateTime = "DateTime",
-    Choice = "Choice",
-    Computed = "Computed",
-    URL = "URL",
-    Number = "Number",
-    Text = "Text",
-    Date = "Date",
-    Note = "Note"
 }
 
 export enum ValueType {
@@ -580,13 +589,13 @@ export const where = (query: string) => {
 /**
  * Generates a Join CAML element
  * @param type 
- * @param joinName 
- * @param pkey 
- * @param pJoinName 
+ * @param joinName Specifies an alternate name for the foreign list. There is no need to explicitly map the alias onto the real name of the foreign list because joins are only allowed through a lookup field relation and the foreign list is specified in the Lookup field definition.
+ * @param lookupField 
+ * @param pJoinName If the primary list of the join is not the parent list of the view, then it, too, is identified with a List attribute set to its alias.
  * @param projections 
  */
-export const join = (type: JoinType, joinName: string, pkey: string, pJoinName: string = "", projections: IProjections[] = []) => {
-    return new Join({ type: type, joinName: joinName, pkey: pkey, projections: projections, pJoinName: pJoinName })
+export const join = (type: JoinType, joinName: string, lookupField: string, pJoinName = '', projections: IProjections[] = []) => {
+    return new Join({ type, joinName, lookupField, projections, pJoinName })
 }
 
 /**
@@ -609,7 +618,7 @@ export const joins = (...joins: Join[]) => {
  * @param query 
  */
 export const sanitizeQuery = (query: string) => {
-    return query.replace(/[\n\r]/gm, "");
+    return query.replace(/>\s+</g,'><');
 }
 
 /**
