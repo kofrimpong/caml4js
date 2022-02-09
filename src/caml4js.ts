@@ -29,6 +29,30 @@ if (typeof Object.assign !== 'function') {
     });
 }
 /**
+ * SharePoint field types
+ */
+export enum ValueType {
+    Integer = "Integer",
+    Text = "Text",
+    Date = "Date",
+    Note = "Note",
+    SPWebAllUsers = "SPWeb.AllUsers",
+    SPGroup = "SPGroup",
+    SPWebGroups = "SPWeb.Groups",
+    CurrentUserGroups = "CurrentUserGroups",
+    SPWebUsers = "SPWeb.Users",
+    LookUp = "Lookup",
+    DateTime = "DateTime",
+    Choice = "Choice",
+    Computed = "Computed",
+    URL = "URL",
+    LookupMulti = "LookupMulti",
+    UserMulti = "UserMulti",
+    Number = "Number",
+    File = "File"
+}
+
+/**
  * A base class for Operators
  */
 export class Operator {
@@ -75,7 +99,7 @@ export class FieldOperator extends Operator {
     isFalse() {
         return `<Eq>
             <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>1</Value>
+            <Value Type='${this.type}'>0</Value>
           </Eq>`
     }
     /** Checks whether the value of the field is equal to the specified value */
@@ -520,27 +544,6 @@ export class Join {
             return accum + `<Field Name='${current.Name}' Type='Lookup' List='${list}' ShowField='${current.Field}'/>`
         }, '')
     }
-}
-
-export enum ValueType {
-    Integer = "Integer",
-    Text = "Text",
-    Date = "Date",
-    Note = "Note",
-    SPWebAllUsers = "SPWeb.AllUsers",
-    SPGroup = "SPGroup",
-    SPWebGroups = "SPWeb.Groups",
-    CurrentUserGroups = "CurrentUserGroups",
-    SPWebUsers = "SPWeb.Users",
-    LookUp = "Lookup",
-    DateTime = "DateTime",
-    Choice = "Choice",
-    Computed = "Computed",
-    URL = "URL",
-    LookupMulti = "LookupMulti",
-    UserMulti = "UserMulti",
-    Number = "Number",
-    File = "File"
 }
 
 export enum AggregationType {
