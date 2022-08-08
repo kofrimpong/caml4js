@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.ValueType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = void 0;
+exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -41,6 +41,30 @@ if (typeof Object.assign !== 'function') {
         configurable: true
     });
 }
+/**
+ * SharePoint field types
+ */
+var ValueType;
+(function (ValueType) {
+    ValueType["Integer"] = "Integer";
+    ValueType["Text"] = "Text";
+    ValueType["Date"] = "Date";
+    ValueType["Note"] = "Note";
+    ValueType["SPWebAllUsers"] = "SPWeb.AllUsers";
+    ValueType["SPGroup"] = "SPGroup";
+    ValueType["SPWebGroups"] = "SPWeb.Groups";
+    ValueType["CurrentUserGroups"] = "CurrentUserGroups";
+    ValueType["SPWebUsers"] = "SPWeb.Users";
+    ValueType["LookUp"] = "Lookup";
+    ValueType["DateTime"] = "DateTime";
+    ValueType["Choice"] = "Choice";
+    ValueType["Computed"] = "Computed";
+    ValueType["URL"] = "URL";
+    ValueType["LookupMulti"] = "LookupMulti";
+    ValueType["UserMulti"] = "UserMulti";
+    ValueType["Number"] = "Number";
+    ValueType["File"] = "File";
+})(ValueType = exports.ValueType || (exports.ValueType = {}));
 /**
  * A base class for Operators
  */
@@ -74,7 +98,7 @@ var FieldOperator = /** @class */ (function (_super) {
     };
     /** Checks whether the value of the field is False */
     FieldOperator.prototype.isFalse = function () {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>1</Value>\n          </Eq>";
+        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>0</Value>\n          </Eq>";
     };
     /** Checks whether the value of the field is equal to the specified value */
     FieldOperator.prototype.equalTo = function (value) {
@@ -420,27 +444,6 @@ var Join = /** @class */ (function () {
     return Join;
 }());
 exports.Join = Join;
-var ValueType;
-(function (ValueType) {
-    ValueType["Integer"] = "Integer";
-    ValueType["Text"] = "Text";
-    ValueType["Date"] = "Date";
-    ValueType["Note"] = "Note";
-    ValueType["SPWebAllUsers"] = "SPWeb.AllUsers";
-    ValueType["SPGroup"] = "SPGroup";
-    ValueType["SPWebGroups"] = "SPWeb.Groups";
-    ValueType["CurrentUserGroups"] = "CurrentUserGroups";
-    ValueType["SPWebUsers"] = "SPWeb.Users";
-    ValueType["LookUp"] = "Lookup";
-    ValueType["DateTime"] = "DateTime";
-    ValueType["Choice"] = "Choice";
-    ValueType["Computed"] = "Computed";
-    ValueType["URL"] = "URL";
-    ValueType["LookupMulti"] = "LookupMulti";
-    ValueType["UserMulti"] = "UserMulti";
-    ValueType["Number"] = "Number";
-    ValueType["File"] = "File";
-})(ValueType = exports.ValueType || (exports.ValueType = {}));
 var AggregationType;
 (function (AggregationType) {
     AggregationType["Count"] = "Count";

@@ -288,6 +288,16 @@ export class DateFieldOperator extends Operator {
         }
         return builder += '</Values></In>'
     }
+    isToday(): string {
+        let includeTime = '';
+        // if (this.type == ValueType.DateTime) {
+        //     includeTime = ` IncludeTimeValue='TRUE'`;
+        // }
+        return `<Neq>
+            <FieldRef Name='${this.internalName}'/>
+            <Value Type='${this.type}'${includeTime}><Today /></Value>
+          </Neq>`
+    }
 }
 
 /**

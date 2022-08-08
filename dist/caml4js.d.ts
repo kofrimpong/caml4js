@@ -1,4 +1,27 @@
 /**
+ * SharePoint field types
+ */
+export declare enum ValueType {
+    Integer = "Integer",
+    Text = "Text",
+    Date = "Date",
+    Note = "Note",
+    SPWebAllUsers = "SPWeb.AllUsers",
+    SPGroup = "SPGroup",
+    SPWebGroups = "SPWeb.Groups",
+    CurrentUserGroups = "CurrentUserGroups",
+    SPWebUsers = "SPWeb.Users",
+    LookUp = "Lookup",
+    DateTime = "DateTime",
+    Choice = "Choice",
+    Computed = "Computed",
+    URL = "URL",
+    LookupMulti = "LookupMulti",
+    UserMulti = "UserMulti",
+    Number = "Number",
+    File = "File"
+}
+/**
  * A base class for Operators
  */
 export declare class Operator {
@@ -217,26 +240,6 @@ export declare class Join {
     constructor(init?: Partial<Join>);
     getJoinElement(): string;
     getProjectionsElement(): string;
-}
-export declare enum ValueType {
-    Integer = "Integer",
-    Text = "Text",
-    Date = "Date",
-    Note = "Note",
-    SPWebAllUsers = "SPWeb.AllUsers",
-    SPGroup = "SPGroup",
-    SPWebGroups = "SPWeb.Groups",
-    CurrentUserGroups = "CurrentUserGroups",
-    SPWebUsers = "SPWeb.Users",
-    LookUp = "Lookup",
-    DateTime = "DateTime",
-    Choice = "Choice",
-    Computed = "Computed",
-    URL = "URL",
-    LookupMulti = "LookupMulti",
-    UserMulti = "UserMulti",
-    Number = "Number",
-    File = "File"
 }
 export declare enum AggregationType {
     Count = "Count",
