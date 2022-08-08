@@ -34,7 +34,7 @@
     "@types/node": "^12.11.1",
     "@types/vkbeautify": "^0.99.2",
     "jest": "^24.9.0",
-    "ts-jest": "^24.1.0",
+    "ts-jest": "^28.0.7",
     "typescript": "^3.6.4",
     "uglify-js": "^3.6.2",
     "vkbeautify": "^0.99.3"
