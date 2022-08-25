@@ -19,7 +19,8 @@ export declare enum ValueType {
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
     Number = "Number",
-    File = "File"
+    File = "File",
+    Counter = "Counter"
 }
 /**
  * A base class for Operators
@@ -104,6 +105,7 @@ export declare class DateFieldOperator extends Operator {
     * @param arrayOfValues
     */
     in(arrayOfValues: string[]): string;
+    isToday(): string;
 }
 /**
  * A lookup operator for comparison
@@ -342,6 +344,10 @@ export declare const aggregations: (...aggregations: {
  * @param paged
  */
 export declare const rowLimit: (limit: number, paged?: boolean) => string;
+/**
+ * Gets an operator for an ID field for comparison
+ */
+export declare const idField: () => FieldOperator;
 /**
  * Gets an operator for a note field for comparison
  * @param internalName

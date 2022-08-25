@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
+exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -64,6 +64,7 @@ var ValueType;
     ValueType["UserMulti"] = "UserMulti";
     ValueType["Number"] = "Number";
     ValueType["File"] = "File";
+    ValueType["Counter"] = "Counter";
 })(ValueType = exports.ValueType || (exports.ValueType = {}));
 /**
  * A base class for Operators
@@ -238,6 +239,13 @@ var DateFieldOperator = /** @class */ (function (_super) {
             builder += "<Value Type='" + this.type + "'" + includeTime + ">" + arrayOfValues[i] + "</Value>";
         }
         return builder += '</Values></In>';
+    };
+    DateFieldOperator.prototype.isToday = function () {
+        var includeTime = '';
+        // if (this.type == ValueType.DateTime) {
+        //     includeTime = ` IncludeTimeValue='TRUE'`;
+        // }
+        return "<Neq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + "><Today /></Value>\n          </Neq>";
     };
     return DateFieldOperator;
 }(Operator));
@@ -633,6 +641,12 @@ exports.rowLimit = function (limit, paged) {
     if (paged === void 0) { paged = false; }
     var pageStr = paged ? " Paged='TRUE'" : '';
     return "<RowLimit" + pageStr + ">" + limit + "</RowLimit>";
+};
+/**
+ * Gets an operator for an ID field for comparison
+ */
+exports.idField = function () {
+    return new FieldOperator(ValueType.Counter, 'ID');
 };
 /**
  * Gets an operator for a note field for comparison

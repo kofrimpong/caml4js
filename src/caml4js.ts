@@ -49,7 +49,8 @@ export enum ValueType {
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
     Number = "Number",
-    File = "File"
+    File = "File",
+    Counter = "Counter"
 }
 
 /**
@@ -729,6 +730,12 @@ export const aggregations = (...aggregations: { Name: string, Type: AggregationT
 export const rowLimit = (limit: number, paged: boolean = false) => {
     let pageStr = paged ? ` Paged='TRUE'` : '';
     return `<RowLimit${pageStr}>${limit}</RowLimit>`
+}
+/**
+ * Gets an operator for an ID field for comparison 
+ */
+ export const idField = () => {
+    return new FieldOperator(ValueType.Counter, 'ID')
 }
 /**
  * Gets an operator for a note field for comparison
