@@ -409,3 +409,9 @@ export declare const documentNameField: () => FieldOperator;
  * Gets a dynamic WHERE element builder
  */
 export declare const whereBuilder: () => WhereBuilder;
+/**
+ * encode textual data as CDATA that should not be parsed by an XML parser.
+ * @param s
+ * @returns
+ */
+export declare const encodeAsCDATA: (s: string) => string;

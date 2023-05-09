@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
+exports.encodeAsCDATA = exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -735,4 +735,41 @@ exports.documentNameField = function () {
 exports.whereBuilder = function () {
     return new WhereBuilder();
 };
+/**
+ * encode textual data as CDATA that should not be parsed by an XML parser.
+ * @param s
+ * @returns
+ */
+exports.encodeAsCDATA = function (s) {
+    if (/[<>&]+/.test(s)) {
+        var sb = '';
+        for (var i = 0; i < s.length; i++) {
+            var ch = s.charAt(i);
+            if (/^[<>&]+$/.test(ch)) {
+                sb += "&#" + ch.charCodeAt(0) + ";";
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    }
+    return s;
+};
+// export const encodeAsCDATA = (s: string) => {
+//     //Simpple CDATA construction will not work for string end with ']' .
+//     //https://en.wikipedia.org/wiki/CDATA#Nesting
+//     //return "<![CDATA[" + s + "]]>";
+//     let sb = '';
+//     for (let i = 0; i < s.length; i++) {
+//         const ch = s.charAt(i);
+//         if (/^[a-zA-Z0-9\s]+$/.test(ch)) {
+//             sb += ch;
+//         }
+//         else {
+//             sb += `&#${ch.charCodeAt(0)};`;
+//         }
+//     }
+//     return sb;
+// }
 //# sourceMappingURL=caml4js.js.map

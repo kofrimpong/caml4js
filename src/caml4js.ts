@@ -828,7 +828,7 @@ export const whereBuilder = () => {
 }
 
 /**
- * encode textual data as CDATA that should not be parsed by an XML parser.
+ * Encode textual data as CDATA that should not be parsed by an XML parser.
  * @param s 
  * @returns 
  */
