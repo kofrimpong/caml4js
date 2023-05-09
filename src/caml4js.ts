@@ -632,7 +632,7 @@ export const joins = (...joins: Join[]) => {
  * @param query 
  */
 export const sanitizeQuery = (query: string) => {
-    return query.replace(/>\s+</g,'><');
+    return query.replace(/>\s+</g, '><');
 }
 
 /**
@@ -734,7 +734,7 @@ export const rowLimit = (limit: number, paged: boolean = false) => {
 /**
  * Gets an operator for an ID field for comparison 
  */
- export const idField = () => {
+export const idField = () => {
     return new FieldOperator(ValueType.Counter, 'ID')
 }
 /**
@@ -826,3 +826,41 @@ export const documentNameField = () => {
 export const whereBuilder = () => {
     return new WhereBuilder()
 }
+
+/**
+ * encode textual data as CDATA that should not be parsed by an XML parser.
+ * @param s 
+ * @returns 
+ */
+export const encodeAsCDATA = (s: string) => {
+    if (/[<>&]+/.test(s)) {
+        let sb = '';
+        for (let i = 0; i < s.length; i++) {
+            const ch = s.charAt(i);
+            if (/^[<>&]+$/.test(ch)) {
+                sb += `&#${ch.charCodeAt(0)};`;
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    }
+    return s;
+}
+// export const encodeAsCDATA = (s: string) => {
+//     //Simpple CDATA construction will not work for string end with ']' .
+//     //https://en.wikipedia.org/wiki/CDATA#Nesting
+//     //return "<![CDATA[" + s + "]]>";
+//     let sb = '';
+//     for (let i = 0; i < s.length; i++) {
+//         const ch = s.charAt(i);
+//         if (/^[a-zA-Z0-9\s]+$/.test(ch)) {
+//             sb += ch;
+//         }
+//         else {
+//             sb += `&#${ch.charCodeAt(0)};`;
+//         }
+//     }
+//     return sb;
+// }

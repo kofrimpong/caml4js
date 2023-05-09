@@ -400,3 +400,9 @@ WhereBuilder can be chained
 builder.addQuery(booleanField("Enabled").isTrue())
         .addQuery(userField("Audience").includes(101))
 ```
+
+## Utility functions
+```typsecript
+encodeAsCDATA(s:string)
+```
+This function is used to encode textual data as CDATA that should not be parsed by an XML parser. The characters "<" and "&" are not allowed within XML elements. The "<" character will throw an error because the parser will interpret it as the start of a new element. The "&" character will throw an error because the parser will interpret it as the start of a character entity. 
