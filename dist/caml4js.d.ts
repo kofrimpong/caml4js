@@ -410,7 +410,7 @@ export declare const documentNameField: () => FieldOperator;
  */
 export declare const whereBuilder: () => WhereBuilder;
 /**
- * encode textual data as CDATA that should not be parsed by an XML parser.
+ * Encode textual data that should not be parsed by an XML parser as CDATA.
  * @param s
  * @returns
  */

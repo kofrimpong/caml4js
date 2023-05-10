@@ -9,6 +9,7 @@ All Query elements [mentioned in the CAML docs](https://docs.microsoft.com/en-us
 - [Usage](#usage)
 - [Basics](#basics)
 - [Dynamic Where](#dynamic-where-(wherebuilder))
+- [Utilit Functions](#utility-functions)
 
 ## Installation
 Npm:
@@ -25,7 +26,7 @@ npm install @types/caml4js --save-dev
 In browser:
 
 ```html
-<script type="text/javascript" src="//caml4js.min.js"></script>
+<script type="text/javascript" src="//caml4js.js"></script>
 ```
 
 In node:
@@ -406,3 +407,8 @@ builder.addQuery(booleanField("Enabled").isTrue())
 encodeAsCDATA(s:string)
 ```
 This function is used to encode textual data as CDATA that should not be parsed by an XML parser. The characters "<" and "&" are not allowed within XML elements. The "<" character will throw an error because the parser will interpret it as the start of a new element. The "&" character will throw an error because the parser will interpret it as the start of a character entity. 
+
+```typescript
+sanitizeQuery(s:string)
+```
+Removes line breaks from supplied query string
