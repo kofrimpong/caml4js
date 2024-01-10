@@ -369,30 +369,31 @@ export class WhereBuilder {
         return this;
     }
 
+    private genQuery = (queryArr: string[]) => {
+        let count = 0;
+        let len = queryArr.length;
+        let text = ''
+        while (count < len) {
+            if (count + 1 < len) {
+                text += and(queryArr[count], queryArr[++count])
+            }
+            else {
+                text += queryArr[count]
+            }
+            ++count
+        }
+        if (len > 2) {
+            text = '<And>' + text + '</And>'
+        }
+        return text;
+    }
+
     /**
      * Returns a WHERE string
      */
     toWhere() {
-        const genQuery = (queryArr: string[]) => {
-            let count = 0;
-            let len = queryArr.length;
-            let text = ''
-            while (count < len) {
-                if (count + 1 < len) {
-                    text += and(queryArr[count], queryArr[++count])
-                }
-                else {
-                    text += queryArr[count]
-                }
-                ++count
-            }
-            if (len > 2) {
-                text = '<And>' + text + '</And>'
-            }
-            return text;
-        }
         return where(
-            genQuery(this.queries)
+            this.genQuery(this.queries)
         )
     }
     /**
@@ -560,10 +561,7 @@ export const viewFields = (...viewFields: string[]) => {
  * @param inputs 
  */
 export const query = (...inputs: string[]) => {
-    let viewStr = inputs.reduce((accu, current) => {
-        return accu + current
-    }, "");
-    return `<Query>${viewStr}</Query>`
+    return `<Query>${inputs.join(" ")}</Query>`
 }
 
 /**
@@ -571,10 +569,7 @@ export const query = (...inputs: string[]) => {
  * @param viewInputs 
  */
 export const view = (...viewInputs: string[]) => {
-    let viewStr = viewInputs.reduce((accu, current) => {
-        return accu + current
-    }, "");
-    return `<View>${viewStr}</View>`
+    return `<View>${viewInputs.join(" ")}</View>`
 }
 
 /**
@@ -583,10 +578,7 @@ export const view = (...viewInputs: string[]) => {
  * @param viewInputs 
  */
 export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
-    let viewStr = viewInputs.reduce((accu, current) => {
-        return accu + current
-    }, '');
-    return `<View Scope='${scope}'>${viewStr}</View>`
+    return `<View Scope='${scope}'>${viewInputs.join(" ")}</View>`
 }
 
 export interface IOrderBy {
