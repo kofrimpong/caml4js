@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encodeAsCDATA = exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
+exports.encodeAsCDATA = exports.whereBuilder = exports.documentNameField = exports.guidField = exports.userOrGroupField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserGroupFieldOperator = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -65,6 +65,7 @@ var ValueType;
     ValueType["Number"] = "Number";
     ValueType["File"] = "File";
     ValueType["Counter"] = "Counter";
+    ValueType["Guid"] = "Guid";
 })(ValueType = exports.ValueType || (exports.ValueType = {}));
 /**
  * A base class for Operators
@@ -322,36 +323,6 @@ var UserFieldOperator = /** @class */ (function (_super) {
         return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.Integer + "'><UserID/></Value></Eq>";
     };
     /**
-     * Checks whether the user is a member of the specified SharePoint Group.
-     */
-    UserFieldOperator.prototype.isInSPGroup = function (groupId) {
-        return "<Membership Type='" + ValueType.SPGroup + "' ID='" + groupId + "'><FieldRef Name='" + this.internalName + "'/></Membership>";
-    };
-    /**
-     * Checks whether the value of the field is member of current site collection
-     */
-    UserFieldOperator.prototype.isInSPWebGroups = function () {
-        return this.memberOf(ValueType.SPWebGroups);
-    };
-    /**
-     * Checks whether the value of the field is in current SPWeb users
-     */
-    UserFieldOperator.prototype.isInSPWebAllUsers = function () {
-        return this.memberOf(ValueType.SPWebAllUsers);
-    };
-    /**
-     * Checks whether the value of the field is has rights to the site directly (not through a group)
-     */
-    UserFieldOperator.prototype.isInSPWebUsers = function () {
-        return this.memberOf(ValueType.SPWebUsers);
-    };
-    /**
-     * Checks whether the value of the group field includes the current user.
-     */
-    UserFieldOperator.prototype.isInCurrentUserGroups = function () {
-        return this.memberOf(ValueType.CurrentUserGroups);
-    };
-    /**
      * If the specified field allows multiple values, specifies that
      * the value is included in the list item for the field.
      * @param value
@@ -359,12 +330,26 @@ var UserFieldOperator = /** @class */ (function (_super) {
     UserFieldOperator.prototype.includes = function (value) {
         return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + ValueType.UserMulti + "'>" + value + "</Value></Eq>";
     };
-    UserFieldOperator.prototype.memberOf = function (type) {
-        return "<Membership Type='" + type + "'><FieldRef Name='" + this.internalName + "'/></Membership>";
-    };
     return UserFieldOperator;
 }(Operator));
 exports.UserFieldOperator = UserFieldOperator;
+var UserGroupFieldOperator = /** @class */ (function (_super) {
+    __extends(UserGroupFieldOperator, _super);
+    function UserGroupFieldOperator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * Checks whether the membership of the group assigned to the field includes the current user.
+     */
+    UserGroupFieldOperator.prototype.isCurrentUserMember = function () {
+        return this.memberOf(ValueType.CurrentUserGroups);
+    };
+    UserGroupFieldOperator.prototype.memberOf = function (type) {
+        return "<Membership Type='" + type + "'><FieldRef Name='" + this.internalName + "'/></Membership>";
+    };
+    return UserGroupFieldOperator;
+}(UserFieldOperator));
+exports.UserGroupFieldOperator = UserGroupFieldOperator;
 /**
  * A dynamic WHERE element builder
  */
@@ -374,20 +359,7 @@ var WhereBuilder = /** @class */ (function () {
      */
     function WhereBuilder() {
         this.queries = [];
-    }
-    /**
-     * Add query
-     * @param query the query string
-     */
-    WhereBuilder.prototype.addQuery = function (query) {
-        this.queries.push(query);
-        return this;
-    };
-    /**
-     * Returns a WHERE string
-     */
-    WhereBuilder.prototype.toWhere = function () {
-        var genQuery = function (queryArr) {
+        this.genQuery = function (queryArr) {
             var count = 0;
             var len = queryArr.length;
             var text = '';
@@ -405,7 +377,20 @@ var WhereBuilder = /** @class */ (function () {
             }
             return text;
         };
-        return exports.where(genQuery(this.queries));
+    }
+    /**
+     * Add query
+     * @param query the query string
+     */
+    WhereBuilder.prototype.addQuery = function (query) {
+        this.queries.push(query);
+        return this;
+    };
+    /**
+     * Returns a WHERE string
+     */
+    WhereBuilder.prototype.toWhere = function () {
+        return exports.where(this.genQuery(this.queries));
     };
     /**
      * Clone this query builder
@@ -553,10 +538,7 @@ exports.query = function () {
     for (var _i = 0; _i < arguments.length; _i++) {
         inputs[_i] = arguments[_i];
     }
-    var viewStr = inputs.reduce(function (accu, current) {
-        return accu + current;
-    }, "");
-    return "<Query>" + viewStr + "</Query>";
+    return "<Query>" + inputs.join(" ") + "</Query>";
 };
 /**
  * Generates a View CAML element
@@ -567,10 +549,7 @@ exports.view = function () {
     for (var _i = 0; _i < arguments.length; _i++) {
         viewInputs[_i] = arguments[_i];
     }
-    var viewStr = viewInputs.reduce(function (accu, current) {
-        return accu + current;
-    }, "");
-    return "<View>" + viewStr + "</View>";
+    return "<View>" + viewInputs.join(" ") + "</View>";
 };
 /**
  * Generates a View CAML element
@@ -582,10 +561,7 @@ exports.viewRecursive = function (scope) {
     for (var _i = 1; _i < arguments.length; _i++) {
         viewInputs[_i - 1] = arguments[_i];
     }
-    var viewStr = viewInputs.reduce(function (accu, current) {
-        return accu + current;
-    }, '');
-    return "<View Scope='" + scope + "'>" + viewStr + "</View>";
+    return "<View Scope='" + scope + "'>" + viewInputs.join(" ") + "</View>";
 };
 /**
  * Generates an OrderBy CAML element
@@ -722,6 +698,18 @@ exports.lookupField = function (internalName) {
  */
 exports.userField = function (internalName) {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName);
+};
+/**
+ * Gets an operator for a UserOrGroup field for comparison
+ *
+ * @param internalName - The internal name of the field.
+ * @returns A new instance of UserGroupFieldOperator.
+ */
+exports.userOrGroupField = function (internalName) {
+    return new UserGroupFieldOperator(ValueType.CurrentUserGroups, internalName);
+};
+exports.guidField = function (internalName) {
+    return new FieldOperator(ValueType.Guid, internalName);
 };
 /**
  * Gets an operator for a document library file name field for comparison

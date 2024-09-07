@@ -50,7 +50,8 @@ export enum ValueType {
     UserMulti = "UserMulti",
     Number = "Number",
     File = "File",
-    Counter = "Counter"
+    Counter = "Counter",
+    Guid = "Guid",
 }
 
 /**
@@ -304,36 +305,7 @@ export class UserFieldOperator extends Operator {
     equalToCurrentUser(): string {
         return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.Integer}'><UserID/></Value></Eq>`
     }
-    /**
-     * Checks whether the user is a member of the specified SharePoint Group.
-     */
-    isInSPGroup(groupId: number): string {
-        return `<Membership Type='${ValueType.SPGroup}' ID='${groupId}'><FieldRef Name='${this.internalName}'/></Membership>`
-    }
-    /**
-     * Checks whether the value of the field is member of current site collection
-     */
-    isInSPWebGroups(): string {
-        return this.memberOf(ValueType.SPWebGroups)
-    }
-    /**
-     * Checks whether the value of the field is in current SPWeb users
-     */
-    isInSPWebAllUsers(): string {
-        return this.memberOf(ValueType.SPWebAllUsers)
-    }
-    /**
-     * Checks whether the value of the field is has rights to the site directly (not through a group)
-     */
-    isInSPWebUsers(): string {
-        return this.memberOf(ValueType.SPWebUsers)
-    }
-    /**
-     * Checks whether the value of the group field includes the current user.
-     */
-    isInCurrentUserGroups(): string {
-        return this.memberOf(ValueType.CurrentUserGroups)
-    }
+    
     /**
      * If the specified field allows multiple values, specifies that 
      * the value is included in the list item for the field.
@@ -342,11 +314,19 @@ export class UserFieldOperator extends Operator {
     includes(value: number) {
         return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${ValueType.UserMulti}'>${value}</Value></Eq>`
     }
+}
+
+export class UserGroupFieldOperator extends UserFieldOperator {
+    /**
+     * Checks whether the membership of the group assigned to the field includes the current user.
+     */
+    isCurrentUserMember(): string {
+        return this.memberOf(ValueType.CurrentUserGroups)
+    }
     private memberOf(type: ValueType) {
         return `<Membership Type='${type}'><FieldRef Name='${this.internalName}'/></Membership>`
     }
 }
-
 /**
  * A dynamic WHERE element builder
  */
@@ -712,6 +692,20 @@ export const lookupField = (internalName: string) => {
  */
 export const userField = (internalName: string) => {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName)
+}
+
+/**
+ * Gets an operator for a UserOrGroup field for comparison
+ * 
+ * @param internalName - The internal name of the field.
+ * @returns A new instance of UserGroupFieldOperator.
+ */
+export const userOrGroupField = (internalName: string) => {
+    return new UserGroupFieldOperator(ValueType.CurrentUserGroups, internalName)
+}
+
+export const guidField = (internalName: string) => {
+    return new FieldOperator(ValueType.Guid, internalName)
 }
 
 /**

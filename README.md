@@ -9,7 +9,7 @@ All Query elements [mentioned in the CAML docs](https://docs.microsoft.com/en-us
 - [Usage](#usage)
 - [Basics](#basics)
 - [Dynamic Where](#dynamic-where-(wherebuilder))
-- [Utilit Functions](#utility-functions)
+- [Utility Functions](#utility-functions)
 
 ## Installation
 Npm:
