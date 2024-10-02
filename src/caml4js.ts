@@ -247,20 +247,20 @@ export class DateFieldOperator extends Operator {
 export class LookupFieldOperator extends Operator {
     /** Checks whether the value of the field is equal to the specified ID value */
     idEqualTo(value: number): string {
-        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='Integer'>${value}</Value></Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.Integer}'>${value}</Value></Eq>`
     }
     /** Checks whether the value of the field is equal to the specified value */
     valueEqualTo(value: string): string {
         return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Eq>`
     }
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues 
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds 
      */
-    idIn(arrayOfValues: number[]) {
+    idIn(arrayOfIds: number[]) {
         let builder = `<In><FieldRef LookupId='True' Name='${this.internalName}'/><Values>`;
-        for (let i = 0; i < arrayOfValues.length; i++) {
-            builder += `<Value Type='${this.type}'>${arrayOfValues[i]}</Value>`
+        for (let i = 0; i < arrayOfIds.length; i++) {
+            builder += `<Value Type='${ValueType.Integer}'>${arrayOfIds[i]}</Value>`
         }
         return builder += '</Values></In>'
     }
@@ -608,7 +608,7 @@ export const aggregations = (...aggregations: { Name: string, Type: AggregationT
  * @param limit 
  * @param paged 
  */
-export const rowLimit = (limit: number, paged: boolean = false) => {
+export const rowLimit = (limit: number, paged: boolean = true) => {
     let pageStr = paged ? ` Paged='TRUE'` : '';
     return `<RowLimit${pageStr}>${limit}</RowLimit>`
 }
