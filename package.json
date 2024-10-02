@@ -1,6 +1,6 @@
 {
   "name": "caml4js",
-  "version": "1.3.10",
+  "version": "1.3.11",
   "description": "A declarative JavaScript library for creating SharePoint client-side CAML queries",
   "main": "dist/caml4js.js",
   "types": "dist/caml4js.d.ts",
