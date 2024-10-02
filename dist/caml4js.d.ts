@@ -117,10 +117,10 @@ export declare class LookupFieldOperator extends Operator {
     /** Checks whether the value of the field is equal to the specified value */
     valueEqualTo(value: string): string;
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds
      */
-    idIn(arrayOfValues: number[]): string;
+    idIn(arrayOfIds: number[]): string;
     /**
      * Checks whether the value of the field is equal to one of the specified values
      * @param arrayOfValues

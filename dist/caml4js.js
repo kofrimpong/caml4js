@@ -261,20 +261,20 @@ var LookupFieldOperator = /** @class */ (function (_super) {
     }
     /** Checks whether the value of the field is equal to the specified ID value */
     LookupFieldOperator.prototype.idEqualTo = function (value) {
-        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='Integer'>" + value + "</Value></Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.Integer + "'>" + value + "</Value></Eq>";
     };
     /** Checks whether the value of the field is equal to the specified value */
     LookupFieldOperator.prototype.valueEqualTo = function (value) {
         return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Eq>";
     };
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds
      */
-    LookupFieldOperator.prototype.idIn = function (arrayOfValues) {
+    LookupFieldOperator.prototype.idIn = function (arrayOfIds) {
         var builder = "<In><FieldRef LookupId='True' Name='" + this.internalName + "'/><Values>";
-        for (var i = 0; i < arrayOfValues.length; i++) {
-            builder += "<Value Type='" + this.type + "'>" + arrayOfValues[i] + "</Value>";
+        for (var i = 0; i < arrayOfIds.length; i++) {
+            builder += "<Value Type='" + ValueType.Integer + "'>" + arrayOfIds[i] + "</Value>";
         }
         return builder += '</Values></In>';
     };
@@ -614,7 +614,7 @@ exports.aggregations = function () {
  * @param paged
  */
 exports.rowLimit = function (limit, paged) {
-    if (paged === void 0) { paged = false; }
+    if (paged === void 0) { paged = true; }
     var pageStr = paged ? " Paged='TRUE'" : '';
     return "<RowLimit" + pageStr + ">" + limit + "</RowLimit>";
 };
