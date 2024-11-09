@@ -561,6 +561,9 @@ export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
     return `<View Scope='${scope}'>${viewInputs.join(" ")}</View>`
 }
 
+/**
+ * Represents an order by clause for sorting.
+ */
 export interface IOrderBy {
     Field: string
     Desc?: boolean
@@ -568,7 +571,7 @@ export interface IOrderBy {
 
 /**
  * Generates an OrderBy CAML element
- * @param orderBy 
+ * @param orderBy the fields to order by 
  */
 export const orderBy = (...orderBy: IOrderBy[]) => {
     let viewStr = orderBy.reduce((accu, current) => {
@@ -582,7 +585,7 @@ export const orderBy = (...orderBy: IOrderBy[]) => {
 }
 /**
  * Generate a GroupBy CAML element
- * @param field 
+ * @param field the field to group by 
  */
 export const groupBy = (field: string) => {
     if (!field) {
@@ -605,8 +608,8 @@ export const aggregations = (...aggregations: { Name: string, Type: AggregationT
 }
 /**
  * Generates a RowLimit CAML element
- * @param limit 
- * @param paged 
+ * @param limit  The maximum number of items to return. 
+ * @param paged  If TRUE, the query is paged. If FALSE, the query is not paged. The default is TRUE.
  */
 export const rowLimit = (limit: number, paged: boolean = true) => {
     let pageStr = paged ? ` Paged='TRUE'` : '';
@@ -615,80 +618,82 @@ export const rowLimit = (limit: number, paged: boolean = true) => {
 /**
  * Gets an operator for an ID field for comparison 
  */
-export const idField = () => {
+export const idField = ():FieldOperator => {
     return new FieldOperator(ValueType.Counter, 'ID')
 }
 /**
  * Gets an operator for a note field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const noteField = (internalName: string) => {
     return new FieldOperator(ValueType.Note, internalName)
 }
 /**
  * Gets an operator for a choice field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const choiceField = (internalName: string) => {
     return new FieldOperator(ValueType.Choice, internalName)
 }
 /**
  * Gets an operator for a compute field for comparison
+ * @param internalName the internal name of the field
  */
 export const computedField = (internalName: string) => {
     return new FieldOperator(ValueType.Computed, internalName)
 }
 /**
  * Gets an operator for a url field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const urlField = (internalName: string) => {
     return new FieldOperator(ValueType.URL, internalName)
 }
 /**
  * Gets an operator for a number field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const numberField = (internalName: string) => {
     return new FieldOperator(ValueType.Number, internalName)
 }
 /**
  * Gets an operator for a text field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const textField = (internalName: string) => {
     return new FieldOperator(ValueType.Text, internalName)
 }
 /**
  * Gets an operator for a date field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const dateField = (internalName: string) => {
     return new DateFieldOperator(ValueType.Date, internalName)
 }
 /**
  * Gets an operator for a boolean field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const booleanField = (internalName: string) => {
     return new FieldOperator(ValueType.Integer, internalName)
 }
 /**
  * Gets an operator for a datetime field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const dateTimeField = (internalName: string) => {
     return new DateFieldOperator(ValueType.DateTime, internalName)
 }
 /**
  * Gets an operator for a lookup field for comparison
+ * @param internalName the internal name of the field
  */
 export const lookupField = (internalName: string) => {
     return new LookupFieldOperator(ValueType.LookUp, internalName)
 }
 /**
  * Gets an operator for a User field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const userField = (internalName: string) => {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName)
@@ -704,14 +709,18 @@ export const userOrGroupField = (internalName: string) => {
     return new UserGroupFieldOperator(ValueType.CurrentUserGroups, internalName)
 }
 
-export const guidField = (internalName: string) => {
+/**
+ * Gets an operator for a User field for comparison
+ * @param internalName the internal name of the field
+ */ 
+export const guidField = (internalName: string):FieldOperator => {
     return new FieldOperator(ValueType.Guid, internalName)
 }
 
 /**
  * Gets an operator for a document library file name field for comparison
  */
-export const documentNameField = () => {
+export const documentNameField = ():FieldOperator => {
     return new FieldOperator(ValueType.File, 'FileLeafRef')
 }
 
