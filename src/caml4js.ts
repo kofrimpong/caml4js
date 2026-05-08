@@ -49,7 +49,9 @@ export enum ValueType {
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
     Number = "Number",
-    File = "File"
+    File = "File",
+    Counter = "Counter",
+    Guid = "Guid",
 }
 
 /**
@@ -67,15 +69,11 @@ export class Operator {
 
     /** Checks whether the value of the field was specified by user */
     isNull(): string {
-        return `<IsNull>
-            <FieldRef Name='${this.internalName}'/>
-          </IsNull>`
+        return `<IsNull><FieldRef Name='${this.internalName}'/></IsNull>`
     }
     /** Checks whether the value of the field was not specified by user */
     isNotNull(): string {
-        return `<IsNotNull>
-            <FieldRef Name='${this.internalName}'/>
-          </IsNotNull>`
+        return `<IsNotNull><FieldRef Name='${this.internalName}'/></IsNotNull>`
     }
 }
 
@@ -90,69 +88,42 @@ export class FieldOperator extends Operator {
     }
     /** Checks whether the value of the field is True */
     isTrue() {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>1</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>1</Value></Eq>`
     }
     /** Checks whether the value of the field is False */
     isFalse() {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>0</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>0</Value></Eq>`
     }
     /** Checks whether the value of the field is equal to the specified value */
     equalTo(value: number | string) {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Eq>`
     }
     /** Checks whether the value of the field is not equal to the specified value */
     notEqualTo(value: number | string): string {
-        return `<Neq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Neq>`
+        return `<Neq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Neq>`
     }
     /** Checks whether the value of the field is greater than the specified value */
     greaterThan(value: number | string): string {
-        return `<Gt>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Gt>`
+        return `<Gt><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Gt>`
     }
     /** Checks whether the value of the field is less than the specified value */
     lessThan(value: number | string): string {
-        return `<Lt>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Lt>`
+        return `<Lt><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Lt>`
     }
     /** Checks whether the value of the field is greater than or equal to the specified value */
     greaterThanOrEqualTo(value: number | string): string {
-        return `<Geq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Geq>`
+        return `<Geq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Geq>`
     }
     /** Checks whether the value of the field is less than or equal to the specified value */
     lessThanOrEqualTo(value: number | string): string {
-        return `<Leq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Leq>`
+        return `<Leq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Leq>`
     }
     /**
      * Searches for a string at the start of a column that holds Text or Note field type values.
      * @param value 
      */
     beginsWith(value: string): string {
-        return `<BeginsWith>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </BeginsWith>`
+        return `<BeginsWith><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></BeginsWith>`
     }
     /**
      * Checks whether the value of the field is equal to one of the specified values
@@ -170,10 +141,7 @@ export class FieldOperator extends Operator {
      * @param value 
      */
     contains(value: string): string {
-        return `<Contains>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Contains>`
+        return `<Contains><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Contains>`
     }
     /**
      * If the specified field is a Lookup field that allows multiple values, specifies that 
@@ -181,10 +149,7 @@ export class FieldOperator extends Operator {
      * @param value 
      */
     notIncludes(value: number | string): string {
-        return `<NotIncludes>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </NotIncludes>`
+        return `<NotIncludes><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></NotIncludes>`
     }
     /**
      * If the specified field is a Lookup field that allows multiple values, specifies that 
@@ -192,10 +157,7 @@ export class FieldOperator extends Operator {
      * @param value 
      */
     includes(value: number | string): string {
-        return `<Includes>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Includes>`
+        return `<Includes><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Includes>`
     }
 }
 
@@ -213,10 +175,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${ValueType.DateTime}'${includeTime}>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${ValueType.DateTime}'${includeTime}>${value}</Value></Eq>`
     }
     /** Checks whether the value of the field is not equal to the specified value in ISO format*/
     notEqualTo(value: string): string {
@@ -224,10 +183,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Neq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Neq>`
+        return `<Neq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}>${value}</Value></Neq>`
     }
     /** Checks whether the value of the field is greater than the specified value in ISO format*/
     greaterThan(value: string): string {
@@ -235,10 +191,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Gt>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Gt>`
+        return `<Gt><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}>${value}</Value></Gt>`
     }
     /** Checks whether the value of the field is less than the specified value in ISO format*/
     lessThan(value: string): string {
@@ -246,10 +199,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Lt>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Lt>`
+        return `<Lt><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}>${value}</Value></Lt>`
     }
     /** Checks whether the value of the field is greater than or equal to the specified value in ISO format*/
     greaterThanOrEqualTo(value: string): string {
@@ -257,10 +207,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Geq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Geq>`
+        return `<Geq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}>${value}</Value></Geq>`
     }
     /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
     lessThanOrEqualTo(value: string): string {
@@ -268,10 +215,7 @@ export class DateFieldOperator extends Operator {
         if (this.type == ValueType.DateTime) {
             includeTime = ` IncludeTimeValue='TRUE'`;
         }
-        return `<Leq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}>${value}</Value>
-          </Leq>`
+        return `<Leq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}>${value}</Value></Leq>`
     }
     /**
     * Checks whether the value of the field is equal to one of the specified values
@@ -293,10 +237,7 @@ export class DateFieldOperator extends Operator {
         // if (this.type == ValueType.DateTime) {
         //     includeTime = ` IncludeTimeValue='TRUE'`;
         // }
-        return `<Neq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'${includeTime}><Today /></Value>
-          </Neq>`
+        return `<Neq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'${includeTime}><Today /></Value></Neq>`
     }
 }
 
@@ -306,26 +247,20 @@ export class DateFieldOperator extends Operator {
 export class LookupFieldOperator extends Operator {
     /** Checks whether the value of the field is equal to the specified ID value */
     idEqualTo(value: number): string {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}' LookupId='TRUE'/>
-            <Value Type='Integer'>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.Integer}'>${value}</Value></Eq>`
     }
     /** Checks whether the value of the field is equal to the specified value */
     valueEqualTo(value: string): string {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${this.type}'>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${this.type}'>${value}</Value></Eq>`
     }
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues 
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds 
      */
-    idIn(arrayOfValues: number[]) {
+    idIn(arrayOfIds: number[]) {
         let builder = `<In><FieldRef LookupId='True' Name='${this.internalName}'/><Values>`;
-        for (let i = 0; i < arrayOfValues.length; i++) {
-            builder += `<Value Type='${this.type}'>${arrayOfValues[i]}</Value>`
+        for (let i = 0; i < arrayOfIds.length; i++) {
+            builder += `<Value Type='${ValueType.Integer}'>${arrayOfIds[i]}</Value>`
         }
         return builder += '</Values></In>'
     }
@@ -346,10 +281,7 @@ export class LookupFieldOperator extends Operator {
      * @param value 
      */
     includes(value: number) {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}' LookupId='TRUE'/>
-            <Value Type='${ValueType.LookupMulti}'>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.LookupMulti}'>${value}</Value></Eq>`
     }
 }
 
@@ -360,78 +292,41 @@ export class UserFieldOperator extends Operator {
 
     /** Checks whether the id of the person field is equal to the specified ID value */
     idEqualTo(id: number): string {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}' LookupId='TRUE'/>
-            <Value Type='${ValueType.Integer}'>${id}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.Integer}'>${id}</Value></Eq>`
     }
 
     /** Checks whether the display name of the person field is equal to the specified value */
     displayNameEqualTo(value: string): string {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${ValueType.Text}'>${value}</Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${ValueType.Text}'>${value}</Value></Eq>`
     }
     /**
      * Checks whether the value of the person field is equal to current user
      */
     equalToCurrentUser(): string {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}' LookupId='TRUE'/>
-            <Value Type='${ValueType.Integer}'><UserID/></Value>
-          </Eq>`
+        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.Integer}'><UserID/></Value></Eq>`
     }
-    /**
-     * Checks whether the user is a member of the specified SharePoint Group.
-     */
-    isInSPGroup(groupId: number): string {
-        return `<Membership Type='${ValueType.SPGroup}' ID='${groupId}'>
-            <FieldRef Name='${this.internalName}'/>
-        </Membership>`
-    }
-    /**
-     * Checks whether the value of the field is member of current site collection
-     */
-    isInSPWebGroups(): string {
-        return this.memberOf(ValueType.SPWebGroups)
-    }
-    /**
-     * Checks whether the value of the field is in current SPWeb users
-     */
-    isInSPWebAllUsers(): string {
-        return this.memberOf(ValueType.SPWebAllUsers)
-    }
-    /**
-     * Checks whether the value of the field is has rights to the site directly (not through a group)
-     */
-    isInSPWebUsers(): string {
-        return this.memberOf(ValueType.SPWebUsers)
-    }
-    /**
-     * Checks whether the value of the group field includes the current user.
-     */
-    isInCurrentUserGroups(): string {
-        return this.memberOf(ValueType.CurrentUserGroups)
-    }
+    
     /**
      * If the specified field allows multiple values, specifies that 
      * the value is included in the list item for the field.
      * @param value 
      */
     includes(value: number) {
-        return `<Eq>
-            <FieldRef Name='${this.internalName}'/>
-            <Value Type='${ValueType.UserMulti}'>${value}</Value>
-          </Eq>`
-    }
-    private memberOf(type: ValueType) {
-        return `<Membership Type='${type}'>
-            <FieldRef Name='${this.internalName}'/>
-          </Membership>`
+        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${ValueType.UserMulti}'>${value}</Value></Eq>`
     }
 }
 
+export class UserGroupFieldOperator extends UserFieldOperator {
+    /**
+     * Checks whether the membership of the group assigned to the field includes the current user.
+     */
+    isCurrentUserMember(): string {
+        return this.memberOf(ValueType.CurrentUserGroups)
+    }
+    private memberOf(type: ValueType) {
+        return `<Membership Type='${type}'><FieldRef Name='${this.internalName}'/></Membership>`
+    }
+}
 /**
  * A dynamic WHERE element builder
  */
@@ -454,30 +349,31 @@ export class WhereBuilder {
         return this;
     }
 
+    private genQuery = (queryArr: string[]) => {
+        let count = 0;
+        let len = queryArr.length;
+        let text = ''
+        while (count < len) {
+            if (count + 1 < len) {
+                text += and(queryArr[count], queryArr[++count])
+            }
+            else {
+                text += queryArr[count]
+            }
+            ++count
+        }
+        if (len > 2) {
+            text = '<And>' + text + '</And>'
+        }
+        return text;
+    }
+
     /**
      * Returns a WHERE string
      */
     toWhere() {
-        const genQuery = (queryArr: string[]) => {
-            let count = 0;
-            let len = queryArr.length;
-            let text = ''
-            while (count < len) {
-                if (count + 1 < len) {
-                    text += and(queryArr[count], queryArr[++count])
-                }
-                else {
-                    text += queryArr[count]
-                }
-                ++count
-            }
-            if (len > 2) {
-                text = '<And>' + text + '</And>'
-            }
-            return text;
-        }
         return where(
-            genQuery(this.queries)
+            this.genQuery(this.queries)
         )
     }
     /**
@@ -541,12 +437,7 @@ export class Join {
 
     getJoinElement() {
         let listAlias = this.pJoinName ? `List='${this.pJoinName}'` : '';
-        return `<Join Type='${this.type}' ListAlias='${this.joinName}'>
-            <Eq>
-                <FieldRef Name='${this.lookupField}' RefType='Id' ${listAlias}/>
-                <FieldRef Name='ID' List='${this.joinName}'/>
-            </Eq>
-        </Join>`
+        return `<Join Type='${this.type}' ListAlias='${this.joinName}'><Eq><FieldRef Name='${this.lookupField}' RefType='Id' ${listAlias}/><FieldRef Name='ID' List='${this.joinName}'/></Eq></Join>`
     }
     getProjectionsElement() {
         let list = this.joinName;
@@ -631,7 +522,7 @@ export const joins = (...joins: Join[]) => {
  * @param query 
  */
 export const sanitizeQuery = (query: string) => {
-    return query.replace(/>\s+</g,'><');
+    return query.replace(/>\s+</g, '><');
 }
 
 /**
@@ -650,10 +541,7 @@ export const viewFields = (...viewFields: string[]) => {
  * @param inputs 
  */
 export const query = (...inputs: string[]) => {
-    let viewStr = inputs.reduce((accu, current) => {
-        return accu + current
-    }, "");
-    return `<Query>${viewStr}</Query>`
+    return `<Query>${inputs.join(" ")}</Query>`
 }
 
 /**
@@ -661,10 +549,7 @@ export const query = (...inputs: string[]) => {
  * @param viewInputs 
  */
 export const view = (...viewInputs: string[]) => {
-    let viewStr = viewInputs.reduce((accu, current) => {
-        return accu + current
-    }, "");
-    return `<View>${viewStr}</View>`
+    return `<View>${viewInputs.join(" ")}</View>`
 }
 
 /**
@@ -673,12 +558,12 @@ export const view = (...viewInputs: string[]) => {
  * @param viewInputs 
  */
 export const viewRecursive = (scope: ViewScope, ...viewInputs: string[]) => {
-    let viewStr = viewInputs.reduce((accu, current) => {
-        return accu + current
-    }, '');
-    return `<View Scope='${scope}'>${viewStr}</View>`
+    return `<View Scope='${scope}'>${viewInputs.join(" ")}</View>`
 }
 
+/**
+ * Represents an order by clause for sorting.
+ */
 export interface IOrderBy {
     Field: string
     Desc?: boolean
@@ -686,7 +571,7 @@ export interface IOrderBy {
 
 /**
  * Generates an OrderBy CAML element
- * @param orderBy 
+ * @param orderBy the fields to order by 
  */
 export const orderBy = (...orderBy: IOrderBy[]) => {
     let viewStr = orderBy.reduce((accu, current) => {
@@ -700,7 +585,7 @@ export const orderBy = (...orderBy: IOrderBy[]) => {
 }
 /**
  * Generate a GroupBy CAML element
- * @param field 
+ * @param field the field to group by 
  */
 export const groupBy = (field: string) => {
     if (!field) {
@@ -723,93 +608,119 @@ export const aggregations = (...aggregations: { Name: string, Type: AggregationT
 }
 /**
  * Generates a RowLimit CAML element
- * @param limit 
- * @param paged 
+ * @param limit  The maximum number of items to return. 
+ * @param paged  If TRUE, the query is paged. If FALSE, the query is not paged. The default is TRUE.
  */
-export const rowLimit = (limit: number, paged: boolean = false) => {
+export const rowLimit = (limit: number, paged: boolean = true) => {
     let pageStr = paged ? ` Paged='TRUE'` : '';
     return `<RowLimit${pageStr}>${limit}</RowLimit>`
 }
 /**
+ * Gets an operator for an ID field for comparison 
+ */
+export const idField = ():FieldOperator => {
+    return new FieldOperator(ValueType.Counter, 'ID')
+}
+/**
  * Gets an operator for a note field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const noteField = (internalName: string) => {
     return new FieldOperator(ValueType.Note, internalName)
 }
 /**
  * Gets an operator for a choice field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const choiceField = (internalName: string) => {
     return new FieldOperator(ValueType.Choice, internalName)
 }
 /**
  * Gets an operator for a compute field for comparison
+ * @param internalName the internal name of the field
  */
 export const computedField = (internalName: string) => {
     return new FieldOperator(ValueType.Computed, internalName)
 }
 /**
  * Gets an operator for a url field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const urlField = (internalName: string) => {
     return new FieldOperator(ValueType.URL, internalName)
 }
 /**
  * Gets an operator for a number field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const numberField = (internalName: string) => {
     return new FieldOperator(ValueType.Number, internalName)
 }
 /**
  * Gets an operator for a text field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const textField = (internalName: string) => {
     return new FieldOperator(ValueType.Text, internalName)
 }
 /**
  * Gets an operator for a date field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const dateField = (internalName: string) => {
     return new DateFieldOperator(ValueType.Date, internalName)
 }
 /**
  * Gets an operator for a boolean field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const booleanField = (internalName: string) => {
     return new FieldOperator(ValueType.Integer, internalName)
 }
 /**
  * Gets an operator for a datetime field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const dateTimeField = (internalName: string) => {
     return new DateFieldOperator(ValueType.DateTime, internalName)
 }
 /**
  * Gets an operator for a lookup field for comparison
+ * @param internalName the internal name of the field
  */
 export const lookupField = (internalName: string) => {
     return new LookupFieldOperator(ValueType.LookUp, internalName)
 }
 /**
  * Gets an operator for a User field for comparison
- * @param internalName 
+ * @param internalName the internal name of the field 
  */
 export const userField = (internalName: string) => {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName)
 }
 
 /**
+ * Gets an operator for a UserOrGroup field for comparison
+ * 
+ * @param internalName - The internal name of the field.
+ * @returns A new instance of UserGroupFieldOperator.
+ */
+export const userOrGroupField = (internalName: string) => {
+    return new UserGroupFieldOperator(ValueType.CurrentUserGroups, internalName)
+}
+
+/**
+ * Gets an operator for a User field for comparison
+ * @param internalName the internal name of the field
+ */ 
+export const guidField = (internalName: string):FieldOperator => {
+    return new FieldOperator(ValueType.Guid, internalName)
+}
+
+/**
  * Gets an operator for a document library file name field for comparison
  */
-export const documentNameField = () => {
+export const documentNameField = ():FieldOperator => {
     return new FieldOperator(ValueType.File, 'FileLeafRef')
 }
 
@@ -819,3 +730,41 @@ export const documentNameField = () => {
 export const whereBuilder = () => {
     return new WhereBuilder()
 }
+
+/**
+ * Encode textual data that should not be parsed by an XML parser as CDATA.
+ * @param s 
+ * @returns 
+ */
+export const encodeAsCDATA = (s: string) => {
+    if (/[<>&]+/.test(s)) {
+        let sb = '';
+        for (let i = 0; i < s.length; i++) {
+            const ch = s.charAt(i);
+            if (/^[<>&]+$/.test(ch)) {
+                sb += `&#${ch.charCodeAt(0)};`;
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    }
+    return s;
+}
+// export const encodeAsCDATA = (s: string) => {
+//     //Simpple CDATA construction will not work for string end with ']' .
+//     //https://en.wikipedia.org/wiki/CDATA#Nesting
+//     //return "<![CDATA[" + s + "]]>";
+//     let sb = '';
+//     for (let i = 0; i < s.length; i++) {
+//         const ch = s.charAt(i);
+//         if (/^[a-zA-Z0-9\s]+$/.test(ch)) {
+//             sb += ch;
+//         }
+//         else {
+//             sb += `&#${ch.charCodeAt(0)};`;
+//         }
+//     }
+//     return sb;
+// }
