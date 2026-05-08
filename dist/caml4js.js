@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.whereBuilder = exports.documentNameField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
+exports.encodeAsCDATA = exports.whereBuilder = exports.documentNameField = exports.guidField = exports.userOrGroupField = exports.userField = exports.lookupField = exports.dateTimeField = exports.booleanField = exports.dateField = exports.textField = exports.numberField = exports.urlField = exports.computedField = exports.choiceField = exports.noteField = exports.idField = exports.rowLimit = exports.aggregations = exports.groupBy = exports.orderBy = exports.viewRecursive = exports.view = exports.query = exports.viewFields = exports.sanitizeQuery = exports.joins = exports.join = exports.where = exports.or = exports.and = exports.ViewScope = exports.AggregationType = exports.Join = exports.JoinType = exports.WhereBuilder = exports.UserGroupFieldOperator = exports.UserFieldOperator = exports.LookupFieldOperator = exports.DateFieldOperator = exports.FieldOperator = exports.Operator = exports.ValueType = void 0;
 //@ts-ignore
 if (typeof Object.assign !== 'function') {
     // Must be writable: true, enumerable: false, configurable: true
@@ -64,6 +64,8 @@ var ValueType;
     ValueType["UserMulti"] = "UserMulti";
     ValueType["Number"] = "Number";
     ValueType["File"] = "File";
+    ValueType["Counter"] = "Counter";
+    ValueType["Guid"] = "Guid";
 })(ValueType = exports.ValueType || (exports.ValueType = {}));
 /**
  * A base class for Operators
@@ -75,11 +77,11 @@ var Operator = /** @class */ (function () {
     }
     /** Checks whether the value of the field was specified by user */
     Operator.prototype.isNull = function () {
-        return "<IsNull>\n            <FieldRef Name='" + this.internalName + "'/>\n          </IsNull>";
+        return "<IsNull><FieldRef Name='" + this.internalName + "'/></IsNull>";
     };
     /** Checks whether the value of the field was not specified by user */
     Operator.prototype.isNotNull = function () {
-        return "<IsNotNull>\n            <FieldRef Name='" + this.internalName + "'/>\n          </IsNotNull>";
+        return "<IsNotNull><FieldRef Name='" + this.internalName + "'/></IsNotNull>";
     };
     return Operator;
 }());
@@ -94,42 +96,42 @@ var FieldOperator = /** @class */ (function (_super) {
     }
     /** Checks whether the value of the field is True */
     FieldOperator.prototype.isTrue = function () {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>1</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>1</Value></Eq>";
     };
     /** Checks whether the value of the field is False */
     FieldOperator.prototype.isFalse = function () {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>0</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>0</Value></Eq>";
     };
     /** Checks whether the value of the field is equal to the specified value */
     FieldOperator.prototype.equalTo = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Eq>";
     };
     /** Checks whether the value of the field is not equal to the specified value */
     FieldOperator.prototype.notEqualTo = function (value) {
-        return "<Neq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Neq>";
+        return "<Neq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Neq>";
     };
     /** Checks whether the value of the field is greater than the specified value */
     FieldOperator.prototype.greaterThan = function (value) {
-        return "<Gt>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Gt>";
+        return "<Gt><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Gt>";
     };
     /** Checks whether the value of the field is less than the specified value */
     FieldOperator.prototype.lessThan = function (value) {
-        return "<Lt>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Lt>";
+        return "<Lt><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Lt>";
     };
     /** Checks whether the value of the field is greater than or equal to the specified value */
     FieldOperator.prototype.greaterThanOrEqualTo = function (value) {
-        return "<Geq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Geq>";
+        return "<Geq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Geq>";
     };
     /** Checks whether the value of the field is less than or equal to the specified value */
     FieldOperator.prototype.lessThanOrEqualTo = function (value) {
-        return "<Leq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Leq>";
+        return "<Leq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Leq>";
     };
     /**
      * Searches for a string at the start of a column that holds Text or Note field type values.
      * @param value
      */
     FieldOperator.prototype.beginsWith = function (value) {
-        return "<BeginsWith>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </BeginsWith>";
+        return "<BeginsWith><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></BeginsWith>";
     };
     /**
      * Checks whether the value of the field is equal to one of the specified values
@@ -147,7 +149,7 @@ var FieldOperator = /** @class */ (function (_super) {
      * @param value
      */
     FieldOperator.prototype.contains = function (value) {
-        return "<Contains>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Contains>";
+        return "<Contains><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Contains>";
     };
     /**
      * If the specified field is a Lookup field that allows multiple values, specifies that
@@ -155,7 +157,7 @@ var FieldOperator = /** @class */ (function (_super) {
      * @param value
      */
     FieldOperator.prototype.notIncludes = function (value) {
-        return "<NotIncludes>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </NotIncludes>";
+        return "<NotIncludes><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></NotIncludes>";
     };
     /**
      * If the specified field is a Lookup field that allows multiple values, specifies that
@@ -163,7 +165,7 @@ var FieldOperator = /** @class */ (function (_super) {
      * @param value
      */
     FieldOperator.prototype.includes = function (value) {
-        return "<Includes>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Includes>";
+        return "<Includes><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Includes>";
     };
     return FieldOperator;
 }(Operator));
@@ -182,7 +184,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + ValueType.DateTime + "'" + includeTime + ">" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + ValueType.DateTime + "'" + includeTime + ">" + value + "</Value></Eq>";
     };
     /** Checks whether the value of the field is not equal to the specified value in ISO format*/
     DateFieldOperator.prototype.notEqualTo = function (value) {
@@ -190,7 +192,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Neq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Neq>";
+        return "<Neq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value></Neq>";
     };
     /** Checks whether the value of the field is greater than the specified value in ISO format*/
     DateFieldOperator.prototype.greaterThan = function (value) {
@@ -198,7 +200,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Gt>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Gt>";
+        return "<Gt><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value></Gt>";
     };
     /** Checks whether the value of the field is less than the specified value in ISO format*/
     DateFieldOperator.prototype.lessThan = function (value) {
@@ -206,7 +208,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Lt>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Lt>";
+        return "<Lt><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value></Lt>";
     };
     /** Checks whether the value of the field is greater than or equal to the specified value in ISO format*/
     DateFieldOperator.prototype.greaterThanOrEqualTo = function (value) {
@@ -214,7 +216,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Geq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Geq>";
+        return "<Geq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value></Geq>";
     };
     /** Checks whether the value of the field is less than or equal to the specified value in ISO format*/
     DateFieldOperator.prototype.lessThanOrEqualTo = function (value) {
@@ -222,7 +224,7 @@ var DateFieldOperator = /** @class */ (function (_super) {
         if (this.type == ValueType.DateTime) {
             includeTime = " IncludeTimeValue='TRUE'";
         }
-        return "<Leq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value>\n          </Leq>";
+        return "<Leq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + ">" + value + "</Value></Leq>";
     };
     /**
     * Checks whether the value of the field is equal to one of the specified values
@@ -239,6 +241,13 @@ var DateFieldOperator = /** @class */ (function (_super) {
         }
         return builder += '</Values></In>';
     };
+    DateFieldOperator.prototype.isToday = function () {
+        var includeTime = '';
+        // if (this.type == ValueType.DateTime) {
+        //     includeTime = ` IncludeTimeValue='TRUE'`;
+        // }
+        return "<Neq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'" + includeTime + "><Today /></Value></Neq>";
+    };
     return DateFieldOperator;
 }(Operator));
 exports.DateFieldOperator = DateFieldOperator;
@@ -252,20 +261,20 @@ var LookupFieldOperator = /** @class */ (function (_super) {
     }
     /** Checks whether the value of the field is equal to the specified ID value */
     LookupFieldOperator.prototype.idEqualTo = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "' LookupId='TRUE'/>\n            <Value Type='Integer'>" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.Integer + "'>" + value + "</Value></Eq>";
     };
     /** Checks whether the value of the field is equal to the specified value */
     LookupFieldOperator.prototype.valueEqualTo = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + this.type + "'>" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + this.type + "'>" + value + "</Value></Eq>";
     };
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds
      */
-    LookupFieldOperator.prototype.idIn = function (arrayOfValues) {
+    LookupFieldOperator.prototype.idIn = function (arrayOfIds) {
         var builder = "<In><FieldRef LookupId='True' Name='" + this.internalName + "'/><Values>";
-        for (var i = 0; i < arrayOfValues.length; i++) {
-            builder += "<Value Type='" + this.type + "'>" + arrayOfValues[i] + "</Value>";
+        for (var i = 0; i < arrayOfIds.length; i++) {
+            builder += "<Value Type='" + ValueType.Integer + "'>" + arrayOfIds[i] + "</Value>";
         }
         return builder += '</Values></In>';
     };
@@ -286,7 +295,7 @@ var LookupFieldOperator = /** @class */ (function (_super) {
      * @param value
      */
     LookupFieldOperator.prototype.includes = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "' LookupId='TRUE'/>\n            <Value Type='" + ValueType.LookupMulti + "'>" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.LookupMulti + "'>" + value + "</Value></Eq>";
     };
     return LookupFieldOperator;
 }(Operator));
@@ -301,47 +310,17 @@ var UserFieldOperator = /** @class */ (function (_super) {
     }
     /** Checks whether the id of the person field is equal to the specified ID value */
     UserFieldOperator.prototype.idEqualTo = function (id) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "' LookupId='TRUE'/>\n            <Value Type='" + ValueType.Integer + "'>" + id + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.Integer + "'>" + id + "</Value></Eq>";
     };
     /** Checks whether the display name of the person field is equal to the specified value */
     UserFieldOperator.prototype.displayNameEqualTo = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + ValueType.Text + "'>" + value + "</Value>\n          </Eq>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + ValueType.Text + "'>" + value + "</Value></Eq>";
     };
     /**
      * Checks whether the value of the person field is equal to current user
      */
     UserFieldOperator.prototype.equalToCurrentUser = function () {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "' LookupId='TRUE'/>\n            <Value Type='" + ValueType.Integer + "'><UserID/></Value>\n          </Eq>";
-    };
-    /**
-     * Checks whether the user is a member of the specified SharePoint Group.
-     */
-    UserFieldOperator.prototype.isInSPGroup = function (groupId) {
-        return "<Membership Type='" + ValueType.SPGroup + "' ID='" + groupId + "'>\n            <FieldRef Name='" + this.internalName + "'/>\n        </Membership>";
-    };
-    /**
-     * Checks whether the value of the field is member of current site collection
-     */
-    UserFieldOperator.prototype.isInSPWebGroups = function () {
-        return this.memberOf(ValueType.SPWebGroups);
-    };
-    /**
-     * Checks whether the value of the field is in current SPWeb users
-     */
-    UserFieldOperator.prototype.isInSPWebAllUsers = function () {
-        return this.memberOf(ValueType.SPWebAllUsers);
-    };
-    /**
-     * Checks whether the value of the field is has rights to the site directly (not through a group)
-     */
-    UserFieldOperator.prototype.isInSPWebUsers = function () {
-        return this.memberOf(ValueType.SPWebUsers);
-    };
-    /**
-     * Checks whether the value of the group field includes the current user.
-     */
-    UserFieldOperator.prototype.isInCurrentUserGroups = function () {
-        return this.memberOf(ValueType.CurrentUserGroups);
+        return "<Eq><FieldRef Name='" + this.internalName + "' LookupId='TRUE'/><Value Type='" + ValueType.Integer + "'><UserID/></Value></Eq>";
     };
     /**
      * If the specified field allows multiple values, specifies that
@@ -349,14 +328,28 @@ var UserFieldOperator = /** @class */ (function (_super) {
      * @param value
      */
     UserFieldOperator.prototype.includes = function (value) {
-        return "<Eq>\n            <FieldRef Name='" + this.internalName + "'/>\n            <Value Type='" + ValueType.UserMulti + "'>" + value + "</Value>\n          </Eq>";
-    };
-    UserFieldOperator.prototype.memberOf = function (type) {
-        return "<Membership Type='" + type + "'>\n            <FieldRef Name='" + this.internalName + "'/>\n          </Membership>";
+        return "<Eq><FieldRef Name='" + this.internalName + "'/><Value Type='" + ValueType.UserMulti + "'>" + value + "</Value></Eq>";
     };
     return UserFieldOperator;
 }(Operator));
 exports.UserFieldOperator = UserFieldOperator;
+var UserGroupFieldOperator = /** @class */ (function (_super) {
+    __extends(UserGroupFieldOperator, _super);
+    function UserGroupFieldOperator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * Checks whether the membership of the group assigned to the field includes the current user.
+     */
+    UserGroupFieldOperator.prototype.isCurrentUserMember = function () {
+        return this.memberOf(ValueType.CurrentUserGroups);
+    };
+    UserGroupFieldOperator.prototype.memberOf = function (type) {
+        return "<Membership Type='" + type + "'><FieldRef Name='" + this.internalName + "'/></Membership>";
+    };
+    return UserGroupFieldOperator;
+}(UserFieldOperator));
+exports.UserGroupFieldOperator = UserGroupFieldOperator;
 /**
  * A dynamic WHERE element builder
  */
@@ -366,20 +359,7 @@ var WhereBuilder = /** @class */ (function () {
      */
     function WhereBuilder() {
         this.queries = [];
-    }
-    /**
-     * Add query
-     * @param query the query string
-     */
-    WhereBuilder.prototype.addQuery = function (query) {
-        this.queries.push(query);
-        return this;
-    };
-    /**
-     * Returns a WHERE string
-     */
-    WhereBuilder.prototype.toWhere = function () {
-        var genQuery = function (queryArr) {
+        this.genQuery = function (queryArr) {
             var count = 0;
             var len = queryArr.length;
             var text = '';
@@ -397,7 +377,20 @@ var WhereBuilder = /** @class */ (function () {
             }
             return text;
         };
-        return exports.where(genQuery(this.queries));
+    }
+    /**
+     * Add query
+     * @param query the query string
+     */
+    WhereBuilder.prototype.addQuery = function (query) {
+        this.queries.push(query);
+        return this;
+    };
+    /**
+     * Returns a WHERE string
+     */
+    WhereBuilder.prototype.toWhere = function () {
+        return exports.where(this.genQuery(this.queries));
     };
     /**
      * Clone this query builder
@@ -433,7 +426,7 @@ var Join = /** @class */ (function () {
     }
     Join.prototype.getJoinElement = function () {
         var listAlias = this.pJoinName ? "List='" + this.pJoinName + "'" : '';
-        return "<Join Type='" + this.type + "' ListAlias='" + this.joinName + "'>\n            <Eq>\n                <FieldRef Name='" + this.lookupField + "' RefType='Id' " + listAlias + "/>\n                <FieldRef Name='ID' List='" + this.joinName + "'/>\n            </Eq>\n        </Join>";
+        return "<Join Type='" + this.type + "' ListAlias='" + this.joinName + "'><Eq><FieldRef Name='" + this.lookupField + "' RefType='Id' " + listAlias + "/><FieldRef Name='ID' List='" + this.joinName + "'/></Eq></Join>";
     };
     Join.prototype.getProjectionsElement = function () {
         var list = this.joinName;
@@ -545,10 +538,7 @@ exports.query = function () {
     for (var _i = 0; _i < arguments.length; _i++) {
         inputs[_i] = arguments[_i];
     }
-    var viewStr = inputs.reduce(function (accu, current) {
-        return accu + current;
-    }, "");
-    return "<Query>" + viewStr + "</Query>";
+    return "<Query>" + inputs.join(" ") + "</Query>";
 };
 /**
  * Generates a View CAML element
@@ -559,10 +549,7 @@ exports.view = function () {
     for (var _i = 0; _i < arguments.length; _i++) {
         viewInputs[_i] = arguments[_i];
     }
-    var viewStr = viewInputs.reduce(function (accu, current) {
-        return accu + current;
-    }, "");
-    return "<View>" + viewStr + "</View>";
+    return "<View>" + viewInputs.join(" ") + "</View>";
 };
 /**
  * Generates a View CAML element
@@ -574,10 +561,7 @@ exports.viewRecursive = function (scope) {
     for (var _i = 1; _i < arguments.length; _i++) {
         viewInputs[_i - 1] = arguments[_i];
     }
-    var viewStr = viewInputs.reduce(function (accu, current) {
-        return accu + current;
-    }, '');
-    return "<View Scope='" + scope + "'>" + viewStr + "</View>";
+    return "<View Scope='" + scope + "'>" + viewInputs.join(" ") + "</View>";
 };
 /**
  * Generates an OrderBy CAML element
@@ -630,9 +614,15 @@ exports.aggregations = function () {
  * @param paged
  */
 exports.rowLimit = function (limit, paged) {
-    if (paged === void 0) { paged = false; }
+    if (paged === void 0) { paged = true; }
     var pageStr = paged ? " Paged='TRUE'" : '';
     return "<RowLimit" + pageStr + ">" + limit + "</RowLimit>";
+};
+/**
+ * Gets an operator for an ID field for comparison
+ */
+exports.idField = function () {
+    return new FieldOperator(ValueType.Counter, 'ID');
 };
 /**
  * Gets an operator for a note field for comparison
@@ -710,6 +700,18 @@ exports.userField = function (internalName) {
     return new UserFieldOperator(ValueType.CurrentUserGroups, internalName);
 };
 /**
+ * Gets an operator for a UserOrGroup field for comparison
+ *
+ * @param internalName - The internal name of the field.
+ * @returns A new instance of UserGroupFieldOperator.
+ */
+exports.userOrGroupField = function (internalName) {
+    return new UserGroupFieldOperator(ValueType.CurrentUserGroups, internalName);
+};
+exports.guidField = function (internalName) {
+    return new FieldOperator(ValueType.Guid, internalName);
+};
+/**
  * Gets an operator for a document library file name field for comparison
  */
 exports.documentNameField = function () {
@@ -721,4 +723,41 @@ exports.documentNameField = function () {
 exports.whereBuilder = function () {
     return new WhereBuilder();
 };
+/**
+ * Encode textual data that should not be parsed by an XML parser as CDATA.
+ * @param s
+ * @returns
+ */
+exports.encodeAsCDATA = function (s) {
+    if (/[<>&]+/.test(s)) {
+        var sb = '';
+        for (var i = 0; i < s.length; i++) {
+            var ch = s.charAt(i);
+            if (/^[<>&]+$/.test(ch)) {
+                sb += "&#" + ch.charCodeAt(0) + ";";
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    }
+    return s;
+};
+// export const encodeAsCDATA = (s: string) => {
+//     //Simpple CDATA construction will not work for string end with ']' .
+//     //https://en.wikipedia.org/wiki/CDATA#Nesting
+//     //return "<![CDATA[" + s + "]]>";
+//     let sb = '';
+//     for (let i = 0; i < s.length; i++) {
+//         const ch = s.charAt(i);
+//         if (/^[a-zA-Z0-9\s]+$/.test(ch)) {
+//             sb += ch;
+//         }
+//         else {
+//             sb += `&#${ch.charCodeAt(0)};`;
+//         }
+//     }
+//     return sb;
+// }
 //# sourceMappingURL=caml4js.js.map
