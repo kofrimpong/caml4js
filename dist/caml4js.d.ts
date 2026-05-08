@@ -19,7 +19,9 @@ export declare enum ValueType {
     LookupMulti = "LookupMulti",
     UserMulti = "UserMulti",
     Number = "Number",
-    File = "File"
+    File = "File",
+    Counter = "Counter",
+    Guid = "Guid"
 }
 /**
  * A base class for Operators
@@ -104,6 +106,7 @@ export declare class DateFieldOperator extends Operator {
     * @param arrayOfValues
     */
     in(arrayOfValues: string[]): string;
+    isToday(): string;
 }
 /**
  * A lookup operator for comparison
@@ -114,10 +117,10 @@ export declare class LookupFieldOperator extends Operator {
     /** Checks whether the value of the field is equal to the specified value */
     valueEqualTo(value: string): string;
     /**
-     * Checks whether the value of the field is equal to one of the specified values
-     * @param arrayOfValues
+     * Checks whether the value of the field is equal to one of the specified valuidses
+     * @param arrayOfIds
      */
-    idIn(arrayOfValues: number[]): string;
+    idIn(arrayOfIds: number[]): string;
     /**
      * Checks whether the value of the field is equal to one of the specified values
      * @param arrayOfValues
@@ -143,31 +146,17 @@ export declare class UserFieldOperator extends Operator {
      */
     equalToCurrentUser(): string;
     /**
-     * Checks whether the user is a member of the specified SharePoint Group.
-     */
-    isInSPGroup(groupId: number): string;
-    /**
-     * Checks whether the value of the field is member of current site collection
-     */
-    isInSPWebGroups(): string;
-    /**
-     * Checks whether the value of the field is in current SPWeb users
-     */
-    isInSPWebAllUsers(): string;
-    /**
-     * Checks whether the value of the field is has rights to the site directly (not through a group)
-     */
-    isInSPWebUsers(): string;
-    /**
-     * Checks whether the value of the group field includes the current user.
-     */
-    isInCurrentUserGroups(): string;
-    /**
      * If the specified field allows multiple values, specifies that
      * the value is included in the list item for the field.
      * @param value
      */
     includes(value: number): string;
+}
+export declare class UserGroupFieldOperator extends UserFieldOperator {
+    /**
+     * Checks whether the membership of the group assigned to the field includes the current user.
+     */
+    isCurrentUserMember(): string;
     private memberOf;
 }
 /**
@@ -184,6 +173,7 @@ export declare class WhereBuilder {
      * @param query the query string
      */
     addQuery(query: string): this;
+    private genQuery;
     /**
      * Returns a WHERE string
      */
@@ -343,6 +333,10 @@ export declare const aggregations: (...aggregations: {
  */
 export declare const rowLimit: (limit: number, paged?: boolean) => string;
 /**
+ * Gets an operator for an ID field for comparison
+ */
+export declare const idField: () => FieldOperator;
+/**
  * Gets an operator for a note field for comparison
  * @param internalName
  */
@@ -396,6 +390,14 @@ export declare const lookupField: (internalName: string) => LookupFieldOperator;
  */
 export declare const userField: (internalName: string) => UserFieldOperator;
 /**
+ * Gets an operator for a UserOrGroup field for comparison
+ *
+ * @param internalName - The internal name of the field.
+ * @returns A new instance of UserGroupFieldOperator.
+ */
+export declare const userOrGroupField: (internalName: string) => UserGroupFieldOperator;
+export declare const guidField: (internalName: string) => FieldOperator;
+/**
  * Gets an operator for a document library file name field for comparison
  */
 export declare const documentNameField: () => FieldOperator;
@@ -403,3 +405,9 @@ export declare const documentNameField: () => FieldOperator;
  * Gets a dynamic WHERE element builder
  */
 export declare const whereBuilder: () => WhereBuilder;
+/**
+ * Encode textual data that should not be parsed by an XML parser as CDATA.
+ * @param s
+ * @returns
+ */
+export declare const encodeAsCDATA: (s: string) => string;

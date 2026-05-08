@@ -1,4 +1,4 @@
-import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, numberField, dateTimeField, choiceField, lookupField, whereBuilder } from './caml4js'
+import { query, textField, where, or, userField, orderBy, groupBy, booleanField, and, viewFields, view, joins, join, JoinType, numberField, dateTimeField, choiceField, lookupField, whereBuilder, userOrGroupField } from './caml4js'
 import * as vkbeautify from 'vkbeautify'
 
 it("Simple query", () => {
@@ -38,7 +38,7 @@ it("Test membership", () => {
         where(
             or(
                 userField("AssignedTo").equalToCurrentUser(),
-                userField("AssignedTo").isInCurrentUserGroups()
+                userOrGroupField("AssignedTo").isCurrentUserMember()
             )
         ),
         groupBy("Category"),
