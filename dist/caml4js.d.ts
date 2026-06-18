@@ -127,11 +127,17 @@ export declare class LookupFieldOperator extends Operator {
      */
     valueIn(arrayOfValues: string[]): string;
     /**
-     * If the specified field allows multiple values, specifies that
+     * If the specified field is a Lookup field that allows multiple values, specifies that
+     * the value is not included in the list item for the field.
+     * @param value
+     */
+    notIncludes(value: number | string): string;
+    /**
+     * If the specified field is a Lookup field that allows multiple values, specifies that
      * the value is included in the list item for the field.
      * @param value
      */
-    includes(value: number): string;
+    includes(value: number | string): string;
 }
 /**
  * A User/Group operator for comparison
@@ -146,11 +152,17 @@ export declare class UserFieldOperator extends Operator {
      */
     equalToCurrentUser(): string;
     /**
-     * If the specified field allows multiple values, specifies that
+     * If the specified field is a Lookup field that allows multiple values, specifies that
+     * the value is not included in the list item for the field.
+     * @param value
+     */
+    notIncludes(value: number | string): string;
+    /**
+     * If the specified field is a Lookup field that allows multiple values, specifies that
      * the value is included in the list item for the field.
      * @param value
      */
-    includes(value: number): string;
+    includes(value: number | string): string;
 }
 export declare class UserGroupFieldOperator extends UserFieldOperator {
     /**
@@ -304,18 +316,21 @@ export declare const view: (...viewInputs: string[]) => string;
  * @param viewInputs
  */
 export declare const viewRecursive: (scope: ViewScope, ...viewInputs: string[]) => string;
+/**
+ * Represents an order by clause for sorting.
+ */
 export interface IOrderBy {
     Field: string;
     Desc?: boolean;
 }
 /**
  * Generates an OrderBy CAML element
- * @param orderBy
+ * @param orderBy the fields to order by
  */
 export declare const orderBy: (...orderBy: IOrderBy[]) => string;
 /**
  * Generate a GroupBy CAML element
- * @param field
+ * @param field the field to group by
  */
 export declare const groupBy: (field: string) => string;
 /**
@@ -328,8 +343,8 @@ export declare const aggregations: (...aggregations: {
 }[]) => string;
 /**
  * Generates a RowLimit CAML element
- * @param limit
- * @param paged
+ * @param limit  The maximum number of items to return.
+ * @param paged  If TRUE, the query is paged. If FALSE, the query is not paged. The default is TRUE.
  */
 export declare const rowLimit: (limit: number, paged?: boolean) => string;
 /**
@@ -338,55 +353,57 @@ export declare const rowLimit: (limit: number, paged?: boolean) => string;
 export declare const idField: () => FieldOperator;
 /**
  * Gets an operator for a note field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const noteField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a choice field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const choiceField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a compute field for comparison
+ * @param internalName the internal name of the field
  */
 export declare const computedField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a url field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const urlField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a number field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const numberField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a text field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const textField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a date field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const dateField: (internalName: string) => DateFieldOperator;
 /**
  * Gets an operator for a boolean field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const booleanField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a datetime field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const dateTimeField: (internalName: string) => DateFieldOperator;
 /**
  * Gets an operator for a lookup field for comparison
+ * @param internalName the internal name of the field
  */
 export declare const lookupField: (internalName: string) => LookupFieldOperator;
 /**
  * Gets an operator for a User field for comparison
- * @param internalName
+ * @param internalName the internal name of the field
  */
 export declare const userField: (internalName: string) => UserFieldOperator;
 /**
@@ -396,6 +413,10 @@ export declare const userField: (internalName: string) => UserFieldOperator;
  * @returns A new instance of UserGroupFieldOperator.
  */
 export declare const userOrGroupField: (internalName: string) => UserGroupFieldOperator;
+/**
+ * Gets an operator for a User field for comparison
+ * @param internalName the internal name of the field
+ */
 export declare const guidField: (internalName: string) => FieldOperator;
 /**
  * Gets an operator for a document library file name field for comparison

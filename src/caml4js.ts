@@ -276,12 +276,20 @@ export class LookupFieldOperator extends Operator {
         return builder += '</Values></In>'
     }
     /**
-     * If the specified field allows multiple values, specifies that 
+     * If the specified field is a Lookup field that allows multiple values, specifies that 
+     * the value is not included in the list item for the field.
+     * @param value 
+     */
+    notIncludes(value: number | string): string {
+        return `<NotIncludes><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${this.type}'>${value}</Value></NotIncludes>`
+    }
+    /**
+     * If the specified field is a Lookup field that allows multiple values, specifies that 
      * the value is included in the list item for the field.
      * @param value 
      */
-    includes(value: number) {
-        return `<Eq><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${ValueType.LookupMulti}'>${value}</Value></Eq>`
+    includes(value: number | string): string {
+        return `<Includes><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${this.type}'>${value}</Value></Includes>`
     }
 }
 
@@ -307,12 +315,20 @@ export class UserFieldOperator extends Operator {
     }
     
     /**
-     * If the specified field allows multiple values, specifies that 
+     * If the specified field is a Lookup field that allows multiple values, specifies that 
+     * the value is not included in the list item for the field.
+     * @param value 
+     */
+    notIncludes(value: number | string): string {
+        return `<NotIncludes><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${this.type}'>${value}</Value></NotIncludes>`
+    }
+    /**
+     * If the specified field is a Lookup field that allows multiple values, specifies that 
      * the value is included in the list item for the field.
      * @param value 
      */
-    includes(value: number) {
-        return `<Eq><FieldRef Name='${this.internalName}'/><Value Type='${ValueType.UserMulti}'>${value}</Value></Eq>`
+    includes(value: number | string): string {
+        return `<Includes><FieldRef Name='${this.internalName}' LookupId='TRUE'/><Value Type='${this.type}'>${value}</Value></Includes>`
     }
 }
 
