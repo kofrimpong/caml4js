@@ -30,12 +30,12 @@
   },
   "homepage": "https://github.com/kofrimpong/caml4js#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.19",
+    "@types/jest": "^30.0.0",
     "@types/node": "^12.11.1",
     "@types/vkbeautify": "^0.99.2",
-    "jest": "^29.5.0",
-    "ts-jest": "^24.1.0",
-    "typescript": "^3.6.4",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^6.0.3",
     "uglify-js": "^3.6.2",
     "vkbeautify": "^0.99.3"
   }
